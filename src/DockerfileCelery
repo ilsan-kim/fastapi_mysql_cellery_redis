@@ -2,10 +2,10 @@ FROM python:3.6
 
 LABEL maintainer="Jitendra Singh <jitendra.singh.iitg@gmail.com>"
 
-COPY requirements_celery.txt /requirements.txt
-RUN pip install -r /requirements.txt
+COPY ./src/requirements_celery.txt ./src/requirements.txt
+RUN pip install -r ./src/requirements.txt
 
-COPY ./celery /celery_tasks
+COPY ./src/celery /celery_tasks
 WORKDIR /celery_tasks
 
 ENTRYPOINT celery -A tasks worker --loglevel=info

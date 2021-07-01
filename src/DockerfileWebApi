@@ -2,7 +2,7 @@ FROM tiangolo/uvicorn-gunicorn:python3.8
 
 LABEL maintainer="Jitendra Singh <jitendra.singh.iitg@gmail.com>"
 
-COPY requirements_webapi.txt /requirements.txt
-RUN pip install -r /requirements.txt
+COPY ./src/requirements_webapi.txt ./src/requirements.txt
+RUN pip install -r ./src/requirements.txt
 
-COPY ./app /app
+COPY ./src/app /app
