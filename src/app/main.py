@@ -1,10 +1,10 @@
 import json
 
-
 from pydantic import BaseModel
 from fastapi import FastAPI
 
-from worker import celery
+from app.worker import celery
+from app import models
 
 app = FastAPI()
 

@@ -5,7 +5,7 @@ LABEL maintainer="Jitendra Singh <jitendra.singh.iitg@gmail.com>"
 COPY ./src/requirements_celery.txt ./src/requirements.txt
 RUN pip install -r ./src/requirements.txt
 
-COPY ./src/celery /celery_tasks
-WORKDIR /celery_tasks
+COPY ./src/celery_job /celery_job
+WORKDIR /celery_job
 
 ENTRYPOINT celery -A tasks worker --loglevel=info
