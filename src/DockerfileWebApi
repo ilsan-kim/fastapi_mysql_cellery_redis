@@ -5,4 +5,4 @@ LABEL maintainer="Jitendra Singh <jitendra.singh.iitg@gmail.com>"
 COPY ./src/requirements_webapi.txt ./src/requirements.txt
 RUN pip install -r ./src/requirements.txt
 
-COPY ./src/app /app
+COPY ./src ./

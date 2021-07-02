@@ -12,7 +12,6 @@ app = FastAPI()
 class Item(BaseModel):
     name: str
 
-
 @app.post("/task_hello_world/")
 async def create_item(item: Item):
     task_name = "hello.task"
