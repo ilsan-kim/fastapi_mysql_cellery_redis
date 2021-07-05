@@ -4,6 +4,7 @@ from datetime import datetime
 
 from sqlalchemy import Column, DateTime
 from sqlalchemy.ext.declarative import as_declarative, declared_attr
+from sqlalchemy.ext.declarative import declarative_base
 
 
 @as_declarative()
@@ -16,3 +17,12 @@ class Base:
     @declared_attr
     def __tablename__(cls) -> str:
         return re.sub(r'(?<!^)(?=[A-Z])', '_', cls.__name__).lower()
+
+
+def same_as(column_name):
+    def default_function(context):
+        return context.current_parameters.get(column_name)
+    return default_function
+
+
+BaseNoDatetime = declarative_base(metadata=None)
