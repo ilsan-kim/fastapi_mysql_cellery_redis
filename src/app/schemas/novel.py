@@ -1,8 +1,5 @@
-from typing import Optional, List, Any, Dict, Tuple
-
-from pydantic import BaseModel, conlist
-
-from app.models.novel import STATUS
+from typing import Optional, List
+from pydantic import BaseModel
 
 
 '''
@@ -12,11 +9,6 @@ basic novel tags schema class
 
 # Shared properties
 class NovelTagBase(BaseModel):
-    tag_list: Optional[List[str]]
-
-
-# Properties to Create via API
-class NovelTagCreate(NovelTagBase):
     pass
 
 
@@ -46,11 +38,6 @@ class NovelMetaBase(BaseModel):
     language_code: str = 'kr'
 
 
-# Properties to Create via API
-class NovelMetaCreate(NovelMetaBase):
-    pass
-
-
 # Properties to Update via API
 class NovelMetaUpdate(NovelMetaBase):
     pass
@@ -73,11 +60,6 @@ basic novel open day schema class
 # Shared properties
 class NovelDayBase(BaseModel):
     pass
-
-
-# Properties to Create via API
-class NovelDayCreate(NovelDayBase):
-    open_day_list: Optional[List[int]]
 
 
 # Properties to Update via API
@@ -116,11 +98,19 @@ class NovelBase(BaseModel):
 
 # Properties to Create via API
 class NovelCreate(NovelBase):
-    pass
+    open_day_list: Optional[List[int]]
+    tag_list: Optional[List[str]]
+    title: str
+    description: str
 
 
 # Properties to Update via API
 class NovelUpdate(NovelBase):
+    open_day_list: Optional[List[int]]
+    tag_list: Optional[List[str]]
+    title: str
+    description: str
+
     score: Optional[int] = None
     is_ficpick: Optional[bool] = False
     is_advertised: Optional[bool] = False

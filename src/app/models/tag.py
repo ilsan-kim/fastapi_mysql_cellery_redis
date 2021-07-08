@@ -5,7 +5,7 @@ from app.db.base_class import Base
 
 class Tag(Base):
     id = Column(Integer, primary_key=True, index=True)
-    code = Column(String(30), nullable=False, index=True)
+    code = Column(String(30), nullable=False, index=True, unique=True)
     is_activate = Column(Boolean, default=True)
 
     # Many to Many relation

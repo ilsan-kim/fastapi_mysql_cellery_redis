@@ -20,13 +20,11 @@ class Series(Base):
     is_deleted = Column(Boolean, default=False)
     is_impressing = Column(Boolean, default=True)
 
-    # One to One relation
-    series_statistic = relationship('SeriesStatistic', uselist=False)
-
     # One to Many relation
     paragraph = relationship('Paragraph', back_populates='series', uselist=True, join_depth=1)
-    series_status = relationship('SeriesStatus', back_populates='series', join_depth=1)
-    series_meta = relationship('SeriesMeta', back_populates='series')
+    series_status = relationship('SeriesStatus', back_populates='series', join_depth=1, uselist=True)
+    series_meta = relationship('SeriesMeta', back_populates='series', uselist=True)
+    series_statistic = relationship('SeriesStatistic', uselist=True)
 
     # Many to One relation
     novel = relationship('Novel', back_populates='series', join_depth=1)
@@ -41,7 +39,8 @@ class Series(Base):
 
 
 class SeriesStatus(Base):
-    series_id = Column(Integer, ForeignKey('series.id'), primary_key=True)
+    id = Column(Integer, primary_key=True, index=True)
+    series_id = Column(Integer, ForeignKey('series.id'), index=True)
     manager_id = Column(Integer, ForeignKey('user.id'), nullable=True)
     status = Column(ENUM(*STATUS))
     reason = Column(String(100), default="기타 회사에서 통용되는 기타 규칙에 위배되는 게시글/덧글")
@@ -52,12 +51,14 @@ class SeriesStatus(Base):
 
 
 class SeriesStatistic(Base):
-    series_id = Column(Integer, ForeignKey('series.id'), primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, index=True)
+    series_id = Column(Integer, ForeignKey('series.id'), index=True)
     view_count = Column(Integer)
     rating_count = Column(Integer)
     payment_count = Column(Integer)
+    language_code = Column(String(30), ForeignKey('language.id'), default='kr')
 
-    # One to One relation
+    # Many to One relation
     series = relationship('Series', back_populates='series_statistic')
 
 

@@ -10,24 +10,24 @@ from app.crud.base import CRUDBase
 from app.models.novel import Novel, NovelMeta, NovelDay
 from app.models.novel_tag import NovelTag
 from app.schemas.novel import (NovelCreate, NovelUpdate,
-                               NovelDayCreate, NovelDayUpdate,
-                               NovelMetaCreate, NovelMetaUpdate,
-                               NovelTagCreate, NovelTagUpdate)
+                               NovelDayUpdate,
+                               NovelMetaUpdate,
+                               NovelTagUpdate)
 
 
 class CRUDNovel(CRUDBase[Novel, NovelCreate, NovelUpdate]):
     pass
 
 
-class CRUDNovelMeta(CRUDBase[NovelMeta, NovelMetaCreate, NovelMetaUpdate]):
+class CRUDNovelMeta(CRUDBase[NovelMeta, BaseModel, NovelMetaUpdate]):
     pass
 
 
-class CRUDNovelDay(CRUDBase[NovelDay, NovelDayCreate, NovelDayUpdate]):
+class CRUDNovelDay(CRUDBase[NovelDay, BaseModel, NovelDayUpdate]):
     pass
 
 
-class CRUDNovelTag(CRUDBase[NovelTag, NovelTagCreate, NovelTagUpdate]):
+class CRUDNovelTag(CRUDBase[NovelTag, BaseModel, NovelTagUpdate]):
     pass
 
 

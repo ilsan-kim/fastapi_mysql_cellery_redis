@@ -29,7 +29,6 @@ class Field(FieldBase):
 
 # Properties to Create with code via API
 class CodeFieldCreate(FieldBase):
-    is_activate: Optional[bool] = True
 
     @validator('code')
     def is_iso(cls, v):
@@ -45,7 +44,7 @@ class CodeFieldUpdate(CodeFieldCreate):
 
 # Properties of API Response
 class CodeField(CodeFieldCreate):
-    pass
+    is_activate: Optional[bool] = True
 
     class Config:
         orm_mode = True
