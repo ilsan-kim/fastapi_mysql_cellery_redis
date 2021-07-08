@@ -1,41 +1,23 @@
-import json
+import logging
 
-from pydantic import BaseModel
 from fastapi import FastAPI
+from starlette.middleware.cors import CORSMiddleware
 
-from app.worker import celery
-from app import models
-
-app = FastAPI()
-
-
-class Item(BaseModel):
-    name: str
-
-@app.post("/task_hello_world/")
-async def create_item(item: Item):
-    task_name = "hello.task"
-    task = celery.send_task(task_name, args=[item.name])
-    return dict(id=task.id, url='localhost:5000/check_task/{}'.format(task.id))
+from app.controllers.route import api_router
+from app.core.config import settings
 
 
-@app.get("/check_task/{id}")
-def check_task(id: str):
-    task = celery.AsyncResult(id)
-    if task.state == 'SUCCESS':
-        response = {
-            'status': task.state,
-            'result': task.result,
-            'task_id': id
-        }
-    elif task.state == 'FAILURE':
-        response = json.loads(task.backend.get(task.backend.get_key_for_task(task.id)).decode('utf-8'))
-        del response['children']
-        del response['traceback']
-    else:
-        response = {
-            'status': task.state,
-            'result': task.info,
-            'task_id': id
-        }
-    return response
+app = FastAPI(
+    title=settings.PROJECT_NAME, openapi_url=f"{settings.API_V1_STR}/openapi.json"
+)
+
+if settings.BACKEND_CORS_ORIGINS:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=[str(origin) for origin in settings.BACKEND_CORS_ORIGINS],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
+app.include_router(api_router, prefix=settings.API_V1_STR)

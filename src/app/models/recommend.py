@@ -11,11 +11,13 @@ class Recommend(Base):
     title = Column(String(100))
     content = Column(String(500))
 
-    # One to One relation table
+    # One to One relation
     recommend_statistic = relationship('RecommendStatistic', uselist=False)
 
-    # Many to Many relation table
+    # Many to Many relation
     user_recommend_like = relationship('UserRecommendLike', back_populates='recommend', join_depth=1)
+    user = relationship('User', back_populates='recommend', join_depth=1)
+    novel = relationship('Novel', back_populates='recommend', join_depth=1)
 
 
 class RecommendStatistic(Base):

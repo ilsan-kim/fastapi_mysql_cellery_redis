@@ -6,6 +6,7 @@ from app.db.base_class import Base, BaseNoDatetime
 
 SOURCE = ('NPAY', 'KAKAOPAY', 'CREDITCARD')
 
+
 class Cash(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey('user.id'), index=True)
@@ -13,6 +14,6 @@ class Cash(Base):
     amount = Column(Integer)
     expired_at = Column(DateTime)
 
-    # Many to Many relation table
+    # Many to Many relation
     cash_series = relationship('CashSeries', back_populates='cash', join_depth=1)
     cash_writer = relationship('CashWriter', back_populates='cash', join_depth=2)

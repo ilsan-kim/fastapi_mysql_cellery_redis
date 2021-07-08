@@ -1,3 +1,5 @@
+import datetime
+
 from sqlalchemy import Boolean, Column, Integer, String, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.mysql import ENUM
@@ -17,21 +19,21 @@ class User(Base):
     유저의 기본 메타데이터 저장
     """
     id = Column(Integer, primary_key=True, index=True)
-    username = Column(String(30), index=True)
+    email = Column(String(100), unique=True, index=True, nullable=False)
     hashed_password = Column(String(64), nullable=False)
-    nickname = Column(String(30), nullable=False)
-    name = Column(String(30), nullable=False)
+    nickname = Column(String(30), nullable=False, unique=True)
+    name = Column(String(30), default="")
     phone_number = Column(String(30), default="")
     gender = Column(ENUM(*GENDER), default=GENDER[0])
-    email = Column(String(100), unique=True, index=True, nullable=False)
-    region = Column(Integer, ForeignKey('region.id'))
-    language = Column(Integer, ForeignKey('language.id'))
+    region_code = Column(String(30), ForeignKey('region.code'), default='KR')
+    language_code = Column(String(30), ForeignKey('language.code'), default='kr')
     status = Column(ENUM(*STATUS), default=STATUS[0])
     is_super = Column(Boolean, default=False)
     is_authenticated = Column(Boolean, default=False)
     accept_notification = Column(Boolean, default=False)
     accept_mailing = Column(Boolean, default=False)
-    login_at = Column(DateTime)
+    profile_url = Column(String(300), default="")
+    login_at = Column(DateTime, default=datetime.datetime.now)
 
     # One to One relation table
     sns_account = relationship('SnsAccount', back_populates='user', uselist=False)
@@ -39,9 +41,6 @@ class User(Base):
     writer = relationship('Writer', back_populates='user', uselist=False)
 
     # One to Many relation table
-    novel = relationship('Novel', back_populates='user', join_depth=1)
-    novel_notice = relationship('NovelNotice', back_populates='user', join_depth=1)
-    series = relationship('Series', back_populates='user', join_depth=1)
     commission = relationship('Commission')
     thumbnail = relationship('Thumbnail')
 
@@ -52,11 +51,11 @@ class User(Base):
     user_paragraph = relationship('UserParagraph', back_populates='user', join_depth=2)
     comment = relationship('Comment', back_populates='user', join_depth=1)
     user_other_novel = relationship('UserOtherNovel', back_populates='user', join_depth=1)
-    cash_series = relationship('CashSeries', back_populates='user', join_depth=1)
-    cash_writer = relationship('CashWriter', back_populates='user', join_depth=2)
-    coupon_series = relationship('CouponSeries', back_populates='user', join_depth=1)
     recommend = relationship('Recommend', back_populates='user', join_depth=1)
     user_recommend_like = relationship('UserRecommendLike', back_populates='user', join_depth=1)
+    user_translate_like = relationship('UserTranslateLike', back_populates='user', join_depth=1)
+    user_genre = relationship('UserGenre', back_populates='user', join_depth=1)
+    user_tag = relationship('UserTag', back_populates='user', join_depth=1)
 
 
 class SnsAccount(Base):

@@ -13,5 +13,5 @@ class Coupon(Base):
     source = Column(ENUM(*SOURCE))
     amount = Column(Integer)
 
-    # Many to Many relation table
+    # Many to Many relation
     coupon_series = relationship('CouponSeries', back_populates='coupon', join_depth=1)
