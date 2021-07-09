@@ -1,13 +1,10 @@
-from typing import Any, Dict, Optional, Union, List
-
-from sqlalchemy import or_
-from sqlalchemy.orm import Session, joinedload, contains_eager
-from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
 
-from app.core.security import get_password_hash, verify_password
+from sqlalchemy.orm import Session, joinedload
+
 from app.crud.base import CRUDBase
 from app.models.novel import Novel, NovelMeta, NovelDay
+from app.models.series import Series
 from app.models.novel_tag import NovelTag
 from app.schemas.novel import (NovelCreate, NovelUpdate,
                                NovelDayUpdate,
@@ -16,7 +13,11 @@ from app.schemas.novel import (NovelCreate, NovelUpdate,
 
 
 class CRUDNovel(CRUDBase[Novel, NovelCreate, NovelUpdate]):
-    pass
+    def get_with_series(self, db: Session, id: int):
+        return db.query(self.model).\
+            outerjoin(self.model.series).\
+            options(joinedload(self.model.series)).\
+            filter(self.model.id == id).first()
 
 
 class CRUDNovelMeta(CRUDBase[NovelMeta, BaseModel, NovelMetaUpdate]):

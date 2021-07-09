@@ -25,6 +25,7 @@ class UserUpdate(UserBase):
 
 # Properties of API Response
 class User(UserBase):
+    id: int
     is_super: Optional[bool] = False
     is_authenticated: Optional[bool] = False
     accept_notification: Optional[bool] = False

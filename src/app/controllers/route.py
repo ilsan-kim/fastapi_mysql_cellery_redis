@@ -7,6 +7,7 @@ from app.controllers.v1 import (
     field,
     writer,
     novel,
+    series,
     banned_string
 )
 

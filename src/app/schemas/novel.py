@@ -1,4 +1,5 @@
 from typing import Optional, List
+
 from pydantic import BaseModel
 
 
@@ -40,7 +41,8 @@ class NovelMetaBase(BaseModel):
 
 # Properties to Update via API
 class NovelMetaUpdate(NovelMetaBase):
-    pass
+    id: int
+    novel_id: int
 
 
 # Properties of API Response

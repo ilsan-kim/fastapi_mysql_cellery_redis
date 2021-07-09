@@ -19,6 +19,7 @@ class Series(Base):
     approved_at = Column(DateTime)
     is_deleted = Column(Boolean, default=False)
     is_impressing = Column(Boolean, default=True)
+    is_completed = Column(Boolean, default=False)
 
     # One to Many relation
     paragraph = relationship('Paragraph', back_populates='series', uselist=True, join_depth=1)
@@ -56,7 +57,7 @@ class SeriesStatistic(Base):
     view_count = Column(Integer)
     rating_count = Column(Integer)
     payment_count = Column(Integer)
-    language_code = Column(String(30), ForeignKey('language.id'), default='kr')
+    language_code = Column(String(30), ForeignKey('language.code'), default='kr')
 
     # Many to One relation
     series = relationship('Series', back_populates='series_statistic')

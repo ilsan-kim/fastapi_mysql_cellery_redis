@@ -21,6 +21,7 @@ class Novel(Base):
     is_censored = Column(Boolean, default=False)
     is_scheduled = Column(Boolean, default=False)
     is_free = Column(Boolean, default=True)
+    need_pay_from = Column(Integer, default=None)
     is_advertised = Column(Boolean, default=False)
     is_event = Column(Boolean, default=True)
     is_deleted = Column(Boolean, default=False)
@@ -29,7 +30,7 @@ class Novel(Base):
 
     # One to Many relation
     novel_notice = relationship('NovelNotice', back_populates='novel', uselist=True, join_depth=1)
-    series = relationship('Series', back_populates='novel', uselist=True, join_depth=1)
+    series = relationship('Series', back_populates='novel', uselist=True, join_depth=1, order_by="desc(Series.order_number)")
     novel_meta = relationship('NovelMeta', back_populates='novel', uselist=True)
     novel_day = relationship('NovelDay', back_populates='novel', uselist=True)
 

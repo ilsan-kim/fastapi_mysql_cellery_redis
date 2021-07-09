@@ -7,12 +7,11 @@ from app.db.base_class import Base
 class Paragraph(Base):
     id = Column(Integer, primary_key=True, index=True)
     series_id = Column(Integer, ForeignKey('series.id'), index=True)
-    user_id = Column(Integer, ForeignKey('user.id'), index=True)
-    translator_id = Column(Integer, ForeignKey('user.id'), index=True)
     order_number = Column(Integer, nullable=False)
     text = Column(Text(20_000), default="")
     language_code = Column(String(30), ForeignKey('language.code'))
     like_count = Column(Integer)
+    is_origin = Column(Boolean, default=False)
     is_selected = Column(Boolean, default=False)
 
     # Many to One relation

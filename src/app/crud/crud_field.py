@@ -1,4 +1,9 @@
-from app.crud.base import CRUDBase
+from typing import Any, Optional
+
+from fastapi import HTTPException
+from sqlalchemy.orm import Session
+
+from app.crud.base import CRUDBase, ModelType, CreateSchemaType, UpdateSchemaType
 from app.models.genre import Genre, GenreDetail
 from app.models.tag import Tag, TagDetail
 from app.models.language import Language, LanguageDetail
@@ -6,35 +11,45 @@ from app.models.region import Region, RegionDetail
 from app.schemas.field import FieldCreate, FieldUpdate, CodeFieldCreate, CodeFieldUpdate, FieldDetailCreate, FieldDetailUpdate
 
 
-class CRUDGenre(CRUDBase[Genre, FieldCreate, FieldUpdate]):
+# base class for field categories
+class CRUDFieldBase(CRUDBase[ModelType, CreateSchemaType, UpdateSchemaType]):
+    def get_by_code(self, db: Session, code: Any) -> Optional[ModelType]:
+        return db.query(self.model).filter(self.model.code == code).first()
+
+    def check_presence_by_code(self, db: Session, code: Any) -> Any:
+        if self.get_by_code(db=db, code=code) is None:
+            raise HTTPException(status_code=400, detail='입력한 값이 존재하지 않습니다.')
+
+
+class CRUDGenre(CRUDFieldBase[Genre, FieldCreate, FieldUpdate]):
     pass
 
 
-class CRUDTag(CRUDBase[Tag, FieldCreate, FieldUpdate]):
+class CRUDTag(CRUDFieldBase[Tag, FieldCreate, FieldUpdate]):
     pass
 
 
-class CRUDLanguage(CRUDBase[Language, CodeFieldCreate, CodeFieldUpdate]):
+class CRUDLanguage(CRUDFieldBase[Language, CodeFieldCreate, CodeFieldUpdate]):
     pass
 
 
-class CRUDRegion(CRUDBase[Language, CodeFieldCreate, CodeFieldUpdate]):
+class CRUDRegion(CRUDFieldBase[Language, CodeFieldCreate, CodeFieldUpdate]):
     pass
 
 
-class CRUDGenreDetail(CRUDBase[GenreDetail, FieldDetailCreate, FieldDetailUpdate]):
+class CRUDGenreDetail(CRUDFieldBase[GenreDetail, FieldDetailCreate, FieldDetailUpdate]):
     pass
 
 
-class CRUDTagDetail(CRUDBase[TagDetail, FieldDetailCreate, FieldDetailUpdate]):
+class CRUDTagDetail(CRUDFieldBase[TagDetail, FieldDetailCreate, FieldDetailUpdate]):
     pass
 
 
-class CRUDLanguageDetail(CRUDBase[LanguageDetail, FieldDetailCreate, FieldDetailUpdate]):
+class CRUDLanguageDetail(CRUDFieldBase[LanguageDetail, FieldDetailCreate, FieldDetailUpdate]):
     pass
 
 
-class CRUDRegionDetail(CRUDBase[RegionDetail, FieldDetailCreate, FieldDetailUpdate]):
+class CRUDRegionDetail(CRUDFieldBase[RegionDetail, FieldDetailCreate, FieldDetailUpdate]):
     pass
 
 
