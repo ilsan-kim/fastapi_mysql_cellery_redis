@@ -59,3 +59,7 @@ def get_current_active_superuser(
             status_code=400, detail="The user doesn't have enough privileges"
         )
     return current_user
+
+
+def get_page_request(page: int = 1, size: int = 20):
+    return {"page": page, "size": size}

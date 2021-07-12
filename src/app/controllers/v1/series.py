@@ -5,7 +5,7 @@ from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 
 from app import crud
-from app.schemas import series, novel
+from app.schemas import series
 from app.models.series import STATUS
 from app.controllers import deps
 from app.controllers.v1.novel import router
@@ -70,7 +70,7 @@ def create_series(
         "language_code": novel_lang
     })
 
-    # series_status 입력역
+    # series_status 입력
     crud.series_status.create(db, obj_in={
         "series_id": series.id,
         "manager_id": None,

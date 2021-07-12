@@ -12,3 +12,5 @@ from .field import (Field, FieldCreate, FieldUpdate,
                     CodeField, CodeFieldCreate, CodeFieldUpdate,
                     FieldDetailCreate, FieldDetailUpdate, FieldDetail)
 from .banned_string import BannedString, BannedStringCreate, BannedStringUpdate
+
+from .admin.monitoring import SeriesStatusStatistic

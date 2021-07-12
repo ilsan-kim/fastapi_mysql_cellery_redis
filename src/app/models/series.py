@@ -48,7 +48,7 @@ class SeriesStatus(Base):
     reason = Column(String(100), default=None)
 
     # Many to One relation
-    series = relationship('Series', back_populates='series_status')
+    series = relationship('Series', back_populates='series_status', join_depth=2)
 
 
 class SeriesStatistic(Base):

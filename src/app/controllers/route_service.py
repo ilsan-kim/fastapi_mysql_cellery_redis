@@ -5,9 +5,9 @@ from fastapi import APIRouter
 from app.controllers.v1 import (
     user,
     writer,
-    novel
+    novel,
+    series
 )
-from app.controllers.admin import banned_string
 
 api_router_service = APIRouter()
 api_router_service.include_router(user.router, prefix='/user', tags=['user'])
