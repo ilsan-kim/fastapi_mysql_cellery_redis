@@ -7,6 +7,7 @@ from pydantic import AnyHttpUrl, BaseSettings, EmailStr, HttpUrl, PostgresDsn, v
 
 class Settings(BaseSettings):
     API_V1_STR: str = "/v1"
+    API_ADMIN_STR: str = "/admin"
     SECRET_KEY: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 365
     SERVER_NAME: str =  "ficfic_api"

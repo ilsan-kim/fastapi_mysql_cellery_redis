@@ -127,6 +127,7 @@ class Novel(NovelBase):
     is_fickpick: Optional[bool]
     is_advertised: Optional[bool]
     is_deleted: Optional[bool]
+    is_impressing: Optional[bool]
     referral_url: Optional[str]
     score: Optional[int]
     status: Optional[str]

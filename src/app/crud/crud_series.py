@@ -6,8 +6,8 @@ from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
 
 from app.crud.base import CRUDBase
-from app.models.series import Series, SeriesMeta
-from app.schemas.series import SeriesCreate, SeriesUpdate, SeriesMetaCreate, SeriesMetaUpdate
+from app.models.series import Series, SeriesMeta, SeriesStatus
+from app.schemas.series import SeriesCreate, SeriesUpdate, SeriesMetaCreate, SeriesMetaUpdate, SeriesStatusCreate, SeriesStatusUpdate
 
 
 class CRUDSeries(CRUDBase[Series, SeriesCreate, SeriesUpdate]):
@@ -22,5 +22,10 @@ class CRUDSeriesMeta(CRUDBase[SeriesMeta, SeriesMetaCreate, SeriesMetaUpdate]):
     pass
 
 
+class CRUDSeriesStatus(CRUDBase[SeriesStatus, SeriesStatusCreate, SeriesStatusUpdate]):
+    pass
+
+
 series = CRUDSeries(Series)
 series_meta = CRUDSeriesMeta(SeriesMeta)
+series_status = CRUDSeriesStatus(SeriesStatus)

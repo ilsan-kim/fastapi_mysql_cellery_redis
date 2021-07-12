@@ -39,13 +39,13 @@ class Series(Base):
     cash_series = relationship('CashSeries', back_populates='series', join_depth=1)
 
 
+# 회차 상태 변경 관리 (상태 자체는 series 테이블에서 관리)
 class SeriesStatus(Base):
     id = Column(Integer, primary_key=True, index=True)
     series_id = Column(Integer, ForeignKey('series.id'), index=True)
     manager_id = Column(Integer, ForeignKey('user.id'), nullable=True)
     status = Column(ENUM(*STATUS))
-    reason = Column(String(100), default="기타 회사에서 통용되는 기타 규칙에 위배되는 게시글/덧글")
-    is_public = Column(Boolean, default=True)
+    reason = Column(String(100), default=None)
 
     # Many to One relation
     series = relationship('Series', back_populates='series_status')

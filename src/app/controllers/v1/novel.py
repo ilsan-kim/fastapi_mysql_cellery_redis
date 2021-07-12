@@ -74,4 +74,7 @@ def create_novel(
     }
     crud.novel_meta.create(db, obj_in=novel_meta_params)
 
+    # 관리자 처리용 상태 테이블 생성
+
+
     return novel

@@ -27,6 +27,7 @@ class Novel(Base):
     is_deleted = Column(Boolean, default=False)
     referral_url = Column(String(300), default="")
     score = Column(Integer, default=0)
+    is_impressing = Column(Boolean, default=True)
 
     # One to Many relation
     novel_notice = relationship('NovelNotice', back_populates='novel', uselist=True, join_depth=1)

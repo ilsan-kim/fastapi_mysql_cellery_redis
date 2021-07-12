@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from app import crud
 from app.schemas import series, novel
+from app.models.series import STATUS
 from app.controllers import deps
 from app.controllers.v1.novel import router
 
@@ -29,6 +30,7 @@ def create_series(
     novel_is_free = novel_data.is_free
     paid_from = novel_data.need_pay_from
     order_number = crud.series.get_order_number(db=db, novel_id=novel_id)
+    novel_lang = novel_data.language_code
 
     if novel_is_free is True:
         is_free = True
@@ -42,13 +44,38 @@ def create_series(
         'writer_id': writer_id,
         'order_number': order_number,
         'is_completed': series_in.is_completed,
-        'status': 'UNAPPROVED',
+        'status': STATUS[0],
         'is_free': is_free
     }
 
-    # paragraph 입력 구현
-    # series_meta 입력 구현
-
+    # db 입력 영
     series = crud.series.create(db, obj_in=series_params)
+
+    # paragraph 입력
+    [crud.paragraph.create(db, obj_in={
+        "series_id": series.id,
+        "order_number": index,
+        "text": series_in.paragraph[index],
+        "language_code": novel_lang,
+        "is_origin": True,
+        "is_selected": True
+    })
+     for index in range(len(series_in.paragraph))]
+
+    # series_meta 입력
+    crud.series_meta.create(db, obj_in={
+        "series_id": series.id,
+        "title": series_in.title,
+        "description": series_in.description,
+        "language_code": novel_lang
+    })
+
+    # series_status 입력역
+    crud.series_status.create(db, obj_in={
+        "series_id": series.id,
+        "manager_id": None,
+        "status": STATUS[0],
+        "reason": None
+    })
 
     return series

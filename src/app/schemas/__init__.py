@@ -5,7 +5,8 @@ from .novel import (Novel, NovelCreate, NovelUpdate,
                     NovelDay, NovelDayUpdate,
                     NovelTag, NovelTagUpdate)
 from .series import (Series, SeriesCreate, SeriesUpdate,
-                     SeriesMeta, SeriesMetaCreate, SeriesMetaUpdate)
+                     SeriesMeta, SeriesMetaCreate, SeriesMetaUpdate,
+                     SeriesStatus, SeriesStatusCreate, SeriesStatusUpdate)
 from .paragraph import Paragraph, ParagraphCreate, ParagraphUpdate
 from .field import (Field, FieldCreate, FieldUpdate,
                     CodeField, CodeFieldCreate, CodeFieldUpdate,

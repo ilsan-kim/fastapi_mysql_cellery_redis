@@ -3,7 +3,8 @@ import logging
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
-from app.controllers.route import api_router
+from app.controllers.route_service import api_router_service
+from app.controllers.route_admin import api_router_admin
 from app.core.config import settings
 
 
@@ -20,4 +21,5 @@ if settings.BACKEND_CORS_ORIGINS:
         allow_headers=["*"],
     )
 
-app.include_router(api_router, prefix=settings.API_V1_STR)
+app.include_router(api_router_service, prefix=settings.API_V1_STR)
+app.include_router(api_router_admin, prefix=settings.API_ADMIN_STR)

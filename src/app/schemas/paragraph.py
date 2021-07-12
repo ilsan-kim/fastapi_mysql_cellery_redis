@@ -31,3 +31,6 @@ class ParagraphUpdate(ParagraphBase):
 # Properties of API Response
 class Paragraph(ParagraphBase):
     id: int
+
+    class Config:
+        orm_mode = True
