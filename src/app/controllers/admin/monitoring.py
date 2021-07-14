@@ -127,7 +127,7 @@ def get_monitoring_table(
         "processed_at": data.get("updated_at"),
         "manager": manager_name_extract(data.get("manager"))
     } for data in detail_data]
-    return {"page_meta": page_meta, "contents":detail_data_list}
+    return {"page_meta": page_meta, "contents": detail_data_list}
 
 
 @router.get("/{series_id}", response_model=monitoring.SeriesDetail)

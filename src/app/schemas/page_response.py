@@ -19,7 +19,11 @@ class PageResponse(GenericModel, Generic[ModelType]):
     contents: List[ModelType]
 
 
-def paginated_query(page_request: dict, base_query: Query, query_executor: Callable):
+def paginated_query(page_request: dict,
+                    base_query: Query,
+                    completed_query: Query,
+                    query_executor: Callable):
+
     page = page_request.get("page", 1)
     size = page_request.get("size", 20)
     total = base_query.count()
@@ -31,6 +35,20 @@ def paginated_query(page_request: dict, base_query: Query, query_executor: Calla
             "total": total,
             "has_next": page * size < total,
         },
-        "content": query_executor(base_query),
+        "content": query_executor(completed_query),
     }
 
+    # query_result = query_executor(base_query)
+    # page = page_request.get("page", 1)
+    # size = page_request.get("size", 20)
+    # total = len(query_result)
+    #
+    # return {
+    #     "page_meta": {
+    #         "page": page,
+    #         "size": size,
+    #         "total": total,
+    #         "has_next": page * size < total,
+    #     },
+    #     "content": query_result,
+    # }
