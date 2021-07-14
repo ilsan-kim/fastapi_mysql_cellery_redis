@@ -16,7 +16,7 @@ class PageMeta(BaseModel):
 
 class PageResponse(GenericModel, Generic[ModelType]):
     page_meta: PageMeta
-    content: List[ModelType]
+    contents: List[ModelType]
 
 
 def paginated_query(page_request: dict, base_query: Query, query_executor: Callable):

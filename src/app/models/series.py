@@ -5,7 +5,7 @@ from sqlalchemy.dialects.mysql import ENUM
 from app.db.base_class import Base, same_as
 
 
-STATUS = ('UNAPPROVED', 'APPROVED', 'FORBIDDEN')
+STATUS = ('UNAPPROVED', 'APPROVED')
 
 
 class Series(Base):
@@ -22,10 +22,10 @@ class Series(Base):
     is_completed = Column(Boolean, default=False)
 
     # One to Many relation
-    paragraph = relationship('Paragraph', back_populates='series', uselist=True, join_depth=1)
-    series_status = relationship('SeriesStatus', back_populates='series', join_depth=1, uselist=True)
-    series_meta = relationship('SeriesMeta', back_populates='series', uselist=True)
-    series_statistic = relationship('SeriesStatistic', uselist=True)
+    paragraph = relationship('Paragraph', back_populates='series', uselist=True, join_depth=1, cascade="all, delete")
+    series_status = relationship('SeriesStatus', back_populates='series', join_depth=1, uselist=True, cascade="all, delete")
+    series_meta = relationship('SeriesMeta', back_populates='series', uselist=True, cascade="all, delete")
+    series_statistic = relationship('SeriesStatistic', uselist=True, cascade="all, delete-orphan")
 
     # Many to One relation
     novel = relationship('Novel', back_populates='series', join_depth=1)
@@ -47,8 +47,11 @@ class SeriesStatus(Base):
     status = Column(ENUM(*STATUS))
     reason = Column(String(100), default=None)
 
+    # One to One relation
+    manager = relationship('User', back_populates='series_status', join_depth=1)
+
     # Many to One relation
-    series = relationship('Series', back_populates='series_status', join_depth=2)
+    series = relationship('Series', back_populates='series_status', join_depth=2, cascade="all, delete")
 
 
 class SeriesStatistic(Base):
@@ -60,7 +63,7 @@ class SeriesStatistic(Base):
     language_code = Column(String(30), ForeignKey('language.code'), default='kr')
 
     # Many to One relation
-    series = relationship('Series', back_populates='series_statistic')
+    series = relationship('Series', back_populates='series_statistic', cascade="all, delete")
 
 
 class SeriesMeta(Base):
@@ -72,4 +75,4 @@ class SeriesMeta(Base):
     language_code = Column(String(30), ForeignKey('language.code'), default='kr')
 
     # Many to One relation
-    series = relationship('Series', back_populates='series_meta')
+    series = relationship('Series', back_populates='series_meta', cascade="all, delete")

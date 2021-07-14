@@ -8,7 +8,7 @@ from app.models.series import Series
 from app.models.novel_tag import NovelTag
 from app.schemas.novel import (NovelCreate, NovelUpdate,
                                NovelDayUpdate,
-                               NovelMetaUpdate,
+                               NovelMetaCreate, NovelMetaUpdate,
                                NovelTagUpdate)
 
 
@@ -20,7 +20,7 @@ class CRUDNovel(CRUDBase[Novel, NovelCreate, NovelUpdate]):
             filter(self.model.id == id).first()
 
 
-class CRUDNovelMeta(CRUDBase[NovelMeta, BaseModel, NovelMetaUpdate]):
+class CRUDNovelMeta(CRUDBase[NovelMeta, NovelMetaCreate, NovelMetaUpdate]):
     pass
 
 

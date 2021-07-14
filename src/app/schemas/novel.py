@@ -35,8 +35,12 @@ basic novel metadata schema class
 # Shared properties
 class NovelMetaBase(BaseModel):
     title: str = ""
-    description: str = ""
     language_code: str = 'kr'
+
+
+# Properties to Create via API
+class NovelMetaCreate(NovelMetaBase):
+    description: str = ""
 
 
 # Properties to Update via API
@@ -121,7 +125,7 @@ class NovelUpdate(NovelBase):
     status: Optional[str] = "ON_PROGRESS"
 
 
-# Properties of API Response
+# Properties of API Response /
 class Novel(NovelBase):
     id: int
     is_fickpick: Optional[bool]

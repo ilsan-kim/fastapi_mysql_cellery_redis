@@ -15,7 +15,7 @@ class Paragraph(Base):
     is_selected = Column(Boolean, default=False)
 
     # Many to One relation
-    series = relationship('Series', back_populates='paragraph', join_depth=1)
+    series = relationship('Series', back_populates='paragraph', join_depth=1, cascade="all, delete")
 
     # Many to Many relation
     user_paragraph = relationship('UserParagraph', back_populates='paragraph', join_depth=2)

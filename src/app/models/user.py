@@ -39,6 +39,7 @@ class User(Base):
     sns_account = relationship('SnsAccount', back_populates='user', uselist=False)
     banking_info = relationship('BankingInfo', back_populates='user', uselist=False)
     writer = relationship('Writer', back_populates='user', uselist=False)
+    series_status = relationship('SeriesStatus', back_populates='manager', uselist=False, join_depth=1)
 
     # One to Many relation table
     commission = relationship('Commission')

@@ -4,6 +4,7 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from app.crud.base import CRUDBase, ModelType, CreateSchemaType, UpdateSchemaType
+from app.models.other_novel import OtherNovel
 from app.models.genre import Genre, GenreDetail
 from app.models.tag import Tag, TagDetail
 from app.models.language import Language, LanguageDetail
@@ -37,6 +38,10 @@ class CRUDRegion(CRUDFieldBase[Language, CodeFieldCreate, CodeFieldUpdate]):
     pass
 
 
+class CRUDOtherNovel(CRUDFieldBase[OtherNovel, FieldCreate, FieldUpdate]):
+    pass
+
+
 class CRUDGenreDetail(CRUDFieldBase[GenreDetail, FieldDetailCreate, FieldDetailUpdate]):
     pass
 
@@ -57,6 +62,7 @@ genre = CRUDGenre(Genre)
 tag = CRUDTag(Tag)
 language = CRUDLanguage(Language)
 region = CRUDRegion(Region)
+other_novel = CRUDOtherNovel(OtherNovel)
 genre_detail = CRUDGenreDetail(GenreDetail)
 tag_detail = CRUDTagDetail(TagDetail)
 language_detail = CRUDLanguageDetail(LanguageDetail)

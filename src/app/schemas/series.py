@@ -45,7 +45,7 @@ class SeriesStatusBase(BaseModel):
     series_id: int
     manager_id: Optional[int]
     status: str = "UNAPPROVED"
-    reason: str = "PRIVATE_ABUSE"
+    reason: str = "NORMAL"
 
 
 # Properties to Create via API
@@ -55,7 +55,8 @@ class SeriesStatusCreate(SeriesStatusBase):
 
 # Properties to Update via API
 class SeriesStatusUpdate(SeriesStatusCreate):
-    pass
+    status: Optional[str]
+    reason: Optional[str]
 
 
 # Properties of API Response
@@ -85,11 +86,10 @@ class SeriesCreate(SeriesBase):
 
 # Properties to Update via API
 class SeriesUpdate(SeriesBase):
-    id: int
-    series_id: int
-    title: str
-    paragraph: dict
-    description: str = ""
+    title: Optional[str]
+    paragraph: Optional[dict]
+    description: Optional[str] = ""
+    status: Optional[str]
 
 
 # Properties of API Response

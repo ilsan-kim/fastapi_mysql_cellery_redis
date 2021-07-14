@@ -65,6 +65,7 @@ def create_series(
     # series_meta 입력
     crud.series_meta.create(db, obj_in={
         "series_id": series.id,
+        "is_origin": True,
         "title": series_in.title,
         "description": series_in.description,
         "language_code": novel_lang
