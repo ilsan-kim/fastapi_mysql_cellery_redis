@@ -143,3 +143,19 @@ class Novel(NovelBase):
 
     class Config:
         orm_mode = True
+
+
+# Properties of API Response / HOME
+class NovelInHome(NovelBase):
+    novel_id: int
+    title: str  # novel_meta 에서 가져옴
+    writer_id: int
+    writer_nickname: str
+    tag_list: List[str]  # novel_tag 에서 가져옴
+    is_free: bool
+    rating: Optional[float]  # 구현전
+
+
+class NovelinHomeList(NovelInHome):
+    set_id: int
+
