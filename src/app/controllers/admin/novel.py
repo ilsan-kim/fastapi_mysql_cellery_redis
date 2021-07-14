@@ -23,9 +23,19 @@ router = APIRouter()
 def get_novel_table(
         *,
         db: Session = Depends(deps.get_db),
-        page_request: dict = Depends(deps.get_page_request)
+        page_request: dict = Depends(deps.get_page_request),
+        q: Optional[str] = None, min_score: Optional[int] = 0, max_score: Optional[int] = 100, created_from: Optional[datetime] = None, created_to: Optional[datetime] = None,
+        updated_from: Optional[datetime] = None, updated_to: Optional[datetime] = None, ficpick_free: Optional[bool] = True, ficpick_paid: Optional[bool] = True,
+        free_pub_free: Optional[bool] = True, free_pub_paid: Optional[bool] = True, exclusive: Optional[bool] = True, non_exclusive: Optional[bool] = True,
+        advertised: Optional[bool] = True, non_advertised: Optional[bool] = True, impressing: Optional[bool] = True,
+        language_code: Optional[str] = None, genre_code: Optional[str] = None, status: str = None
 ) -> Any:
-    raw_query = jsonable_encoder(crud.novel.get_list_paginated(db=db, page_request=page_request))
+    raw_query = jsonable_encoder(crud.novel.get_list_paginated_for_admin(db=db, page_request=page_request,
+                                                                         q=q, min_score=min_score, max_score=max_score, created_from=created_from, created_to=created_to,
+                                                                         updated_from=updated_from, updated_to=updated_to, ficpick_free=ficpick_free, ficpick_paid=ficpick_paid,
+                                                                         free_pub_free=free_pub_free, free_pub_paid=free_pub_paid, exclusive=exclusive, non_exclusive=non_exclusive,
+                                                                         advertised=advertised, non_advertised=non_advertised, impressing=impressing,
+                                                                         language_code=language_code, genre_code=genre_code))
     page_meta = raw_query.get("page_meta")
     raw_data = raw_query.get("content")
 

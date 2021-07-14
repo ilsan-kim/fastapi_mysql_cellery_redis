@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from typing import Any, Dict, Optional, Union, List
 
-from sqlalchemy import or_
+from sqlalchemy import func
 from sqlalchemy.orm import Session, joinedload, contains_eager
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
@@ -47,12 +47,16 @@ class CRUDSeriesStatus(CRUDBase[SeriesStatus, SeriesStatusCreate, SeriesStatusUp
     def get_all(self, db: Session) -> List[SeriesStatus]:
         return db.query(self.model).all()
 
-    def get_list_paginated(self, db: Session, *,
-                           q: Optional[str] = None, page_request: dict, region_code: Optional[str] = None,
-                           create_from: Optional[datetime] = None, create_to: Optional[datetime] = None, status: str = None):
-
-        page = page_request.get("page", 1)
-        size = page_request.get("size", 20)
+    def get_list_paginated_for_admin(self, db: Session, *,
+                                     page_request: dict, q: Optional[str] = None, region_code: Optional[str] = None,
+                                     created_from: Optional[datetime] = None, created_to: Optional[datetime] = None, status: str = None):
+        """
+        :param q: 검색어 (string)
+        :param region_code:  권역 코드 (string)
+        :param create_from:  등록일 시작점 (datetime)
+        :param create_to:    등록일 종료점 (datetime)
+        :param status:       작품 상태 (list of string) > 전체 = ["UNAPPROVED", "APPROVED"] / 미처리만 = ["UNAPPROVED"] / 처리만 = ["APPROVED"]
+        """
 
         # query param 으로 코드가 왔으면 그 코드 검증, 안왔으면 전체 (id 값을 갖는 모든 객체) 리턴
         if q:
@@ -67,8 +71,8 @@ class CRUDSeriesStatus(CRUDBase[SeriesStatus, SeriesStatusCreate, SeriesStatusUp
         else:
             region_filter = self.model.id
 
-        if create_from and create_to:
-            time_filter = Series.created_at.between(create_from, create_to)
+        if created_from and created_to:
+            time_filter = Series.created_at.between(created_from, created_to)
         else:
             time_filter = self.model.id
 
@@ -78,12 +82,7 @@ class CRUDSeriesStatus(CRUDBase[SeriesStatus, SeriesStatusCreate, SeriesStatusUp
         else:
             status_filter = self.model.id
 
-        # base_query > 기본 쿼리 (total length 측정용)
-        # paginated > 페이징 적용
-        # query > 완성된 쿼리
-        base_query = db.query(self.model)
-        paginated = base_query.order_by(SeriesStatus.id.desc()).limit(size).offset((page - 1) * size).from_self()
-        query = paginated.\
+        query = db.query(self.model).\
             outerjoin(Series).outerjoin(SeriesMeta).outerjoin(Novel).outerjoin(NovelMeta).\
             options(joinedload(self.model.series).joinedload(Series.series_meta)).\
             options(joinedload(self.model.series).joinedload(Series.novel).joinedload(Novel.novel_meta)).\
@@ -92,13 +91,16 @@ class CRUDSeriesStatus(CRUDBase[SeriesStatus, SeriesStatusCreate, SeriesStatusUp
             filter(query_filter).\
             filter(region_filter).\
             filter(time_filter).\
-            filter(status_filter)
+            filter(status_filter).\
+            group_by(self.model.id)
+
+        page = page_request.get("page", 1)
+        size = page_request.get("size", 20)
 
         return paginated_query(
-            page_request=page_request,
-            base_query=base_query,
-            completed_query=query,
-            query_executor=lambda x: x.all()
+            page_request,
+            query,
+            lambda x: x.order_by(SeriesStatus.id.desc()).limit(size).offset((page - 1) * size).all()
         )
 
     def get_detail(self, db: Session, id: int) -> Optional[SeriesStatus]:

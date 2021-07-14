@@ -105,14 +105,15 @@ def get_monitoring_statistic(
 
 @router.get("/table", response_model=PageResponse)
 def get_monitoring_table(
-        q: Optional[str] = None, region_code: Optional[str] = None, create_from: Optional[datetime] = None, create_to: Optional[datetime] = None, status: Optional[str] = None,
+        q: Optional[str] = None, region_code: Optional[str] = None, created_from: Optional[datetime] = None, created_to: Optional[datetime] = None, status: Optional[str] = None,
         *,
         db: Session = Depends(deps.get_db),
         page_request: dict = Depends(deps.get_page_request),
         ) -> Any:
-    raw_data = jsonable_encoder(crud.series_status.get_list_paginated(db=db, page_request=page_request, q=q, region_code=region_code, create_from=create_from, create_to=create_to, status=status))
+    raw_data = jsonable_encoder(crud.series_status.get_list_paginated(db=db, page_request=page_request, q=q, region_code=region_code, create_from=created_from, create_to=created_to, status=status))
     detail_data = raw_data.get("content")
     page_meta = raw_data.get("page_meta")
+
     detail_data_list = [{
         "id": data.get("id"),
         "series_id": data.get("series").get("id"),
