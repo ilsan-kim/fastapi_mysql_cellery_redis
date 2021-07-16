@@ -110,7 +110,7 @@ def get_monitoring_table(
         db: Session = Depends(deps.get_db),
         page_request: dict = Depends(deps.get_page_request),
         ) -> Any:
-    raw_data = jsonable_encoder(crud.series_status.get_list_paginated(db=db, page_request=page_request, q=q, region_code=region_code, create_from=created_from, create_to=created_to, status=status))
+    raw_data = jsonable_encoder(crud.series_status.get_list_paginated_for_admin(db=db, page_request=page_request, q=q, region_code=region_code, created_from=created_from, created_to=created_to, status=status))
     detail_data = raw_data.get("content")
     page_meta = raw_data.get("page_meta")
 
@@ -173,17 +173,14 @@ def edit_series_status(
     if series_status_in.is_delete is True:
         crud.series.delete_by_monitoring(db=db, id=series_id)
         return "deleted"
-    else:
-        pass
 
     # 수정사항 반영을 위해 수정사항 반영할 회차 / 회원 데이터 조회
     series_data = crud.series.get(db=db, id=series_id)
     user_data = crud.user.get(db=db, id=user_id)
-    series_status_data_update = crud.series_status.get(db=db, id=series_status_id)
-    print(jsonable_encoder(series_status_data_update))
-    print("this is user",jsonable_encoder(user_data))
 
-    # 수정사항 반영
+    '''
+    수정사항 반영 로직
+    '''
     # 선택값에 맞게 노출 상태 변경 // 알람 가는 기능 구현 필요
     crud.series.update(db=db,
                        db_obj=series_data,

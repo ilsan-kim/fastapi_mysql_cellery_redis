@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 
 from app.utils.api.admin import manager_name_extract, warning_level_changer
 from app import crud
-from app.schemas.admin import monitoring
+from app.schemas.admin import novel
 from app.schemas.page_response import PageResponse
 from app.schemas.series import SeriesUpdate, SeriesMetaUpdate, SeriesStatusUpdate
 from app.models.series import Series, SeriesMeta, SeriesStatus
@@ -62,22 +62,17 @@ def get_novel_table(
 
     return {"page_meta": page_meta, "contents": detail_data_list}
 
-    # raw_data = jsonable_encoder(crud.series_status.get_list_paginated(db=db, page_request=page_request))
-    # detail_data = raw_data.get("content")
-    # page_meta = raw_data.get("page_meta")
-    # detail_data_list = [{
-    #     "id": data.get("id"),
-    #     "series_id": data.get("series").get("id"),
-    #     "status": data.get("status"),
-    #     "title": list(filter(lambda x: x.get("is_origin") is True,
-    #                          [novel_meta for novel_meta in
-    #                           data.get("series").get("novel").get("novel_meta")]))[0].get("title"),
-    #     "episode": f"{data.get('series').get('order_number')}: "
-    #                f"{list(filter(lambda x: x.get('is_origin') is True, [series_meta for series_meta in data.get('series').get('series_meta')]))[0].get('title')}",
-    #     "writer_nickname": data.get("series").get("novel").get("writer_nickname"),
-    #     "region_code": data.get("series").get("novel").get("region_code"),
-    #     "created_at": data.get("created_at"),
-    #     "processed_at": data.get("updated_at"),
-    #     "manager": manager_name_extract(data.get("manager"))
-    # } for data in detail_data]
-    # return {"page_meta": page_meta, "contents":detail_data_list}
+
+@router.post("/{novel_id}/metadata")
+def update_novel_meta(
+        *,
+        db: Session = Depends(deps.get_db),
+        novel_id: int,
+        novel_meta_in: novel.NovelStatusEdit
+) -> Any:
+    novel_data = crud.novel.get(db=db, id=novel_id)
+    return crud.novel.update(
+        db=db,
+        db_obj=novel_data,
+        obj_in=novel_meta_in
+    )

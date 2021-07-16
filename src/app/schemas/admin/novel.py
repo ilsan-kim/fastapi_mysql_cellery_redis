@@ -28,3 +28,9 @@ class NovelManagement(BaseModel):
     updated_at: datetime        # 최종 업로드일
     translation_suggestion: bool
     score: int
+
+
+class NovelStatusEdit(BaseModel):
+    is_impressing: Optional[bool] = None
+    score: Optional[int] = None
+

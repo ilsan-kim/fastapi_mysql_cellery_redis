@@ -32,6 +32,7 @@ def init_db(db: Session) -> None:
 
 
 if __name__ == "__main__":
+    # init_db(db=SessionLocal)
     def create_tag(db: Session, create_field: dict):
         return crud.other_novel.create(db=db, obj_in=create_field)
 

@@ -6,3 +6,4 @@ COPY ./src/requirements_webapi.txt ./src/requirements.txt
 RUN pip install -r ./src/requirements.txt
 
 COPY ./src ./
+COPY ./src/app/env/*.env ./

@@ -53,8 +53,8 @@ class CRUDSeriesStatus(CRUDBase[SeriesStatus, SeriesStatusCreate, SeriesStatusUp
         """
         :param q: 검색어 (string)
         :param region_code:  권역 코드 (string)
-        :param create_from:  등록일 시작점 (datetime)
-        :param create_to:    등록일 종료점 (datetime)
+        :param created_from:  등록일 시작점 (datetime)
+        :param created_to:    등록일 종료점 (datetime)
         :param status:       작품 상태 (list of string) > 전체 = ["UNAPPROVED", "APPROVED"] / 미처리만 = ["UNAPPROVED"] / 처리만 = ["APPROVED"]
         """
 
