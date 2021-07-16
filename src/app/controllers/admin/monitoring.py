@@ -105,10 +105,9 @@ def get_monitoring_statistic(
 
 @router.get("/table", response_model=PageResponse)
 def get_monitoring_table(
-        q: Optional[str] = None, region_code: Optional[str] = None, created_from: Optional[datetime] = None, created_to: Optional[datetime] = None, status: Optional[str] = None,
-        *,
-        db: Session = Depends(deps.get_db),
-        page_request: dict = Depends(deps.get_page_request),
+        q: Optional[str] = None,
+        region_code: Optional[str] = None, created_from: Optional[str] = "2000-02-22T09:00", created_to: Optional[str] = "2999-02-22T09:00", status: Optional[str] = None,
+        *, db: Session = Depends(deps.get_db), page_request: dict = Depends(deps.get_page_request),
         ) -> Any:
     raw_data = jsonable_encoder(crud.series_status.get_list_paginated_for_admin(db=db, page_request=page_request, q=q, region_code=region_code, created_from=created_from, created_to=created_to, status=status))
     detail_data = raw_data.get("content")

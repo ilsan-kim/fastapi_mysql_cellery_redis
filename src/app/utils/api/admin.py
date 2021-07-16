@@ -15,5 +15,12 @@ def warning_level_changer(now_level: str):
     return STATUS[level+1]
 
 
+def check_updated_date(series_list: list):
+    if series_list:
+        return series_list[0].get("created_at", None)
+    else:
+        return None
+
+
 if __name__ == "__main__":
     print(warning_level_changer("NORMAL"))

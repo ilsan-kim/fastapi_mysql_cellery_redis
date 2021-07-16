@@ -25,7 +25,7 @@ def create_series(
     Create new series.
     """
     # series params
-    novel_data = crud.novel.get_with_series(db=db, id=novel_id)
+    novel_data = crud.novel.get(db=db, id=novel_id)
     writer_id = novel_data.writer_id
     novel_is_free = novel_data.is_free
     paid_from = novel_data.need_pay_from

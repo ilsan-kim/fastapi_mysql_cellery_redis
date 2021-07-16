@@ -49,7 +49,9 @@ class CRUDSeriesStatus(CRUDBase[SeriesStatus, SeriesStatusCreate, SeriesStatusUp
 
     def get_list_paginated_for_admin(self, db: Session, *,
                                      page_request: dict, q: Optional[str] = None, region_code: Optional[str] = None,
-                                     created_from: Optional[datetime] = None, created_to: Optional[datetime] = None, status: str = None):
+                                     created_from: Optional[str] = None,
+                                     created_to: Optional[str] = None,
+                                     status: str = None):
         """
         :param q: 검색어 (string)
         :param region_code:  권역 코드 (string)
