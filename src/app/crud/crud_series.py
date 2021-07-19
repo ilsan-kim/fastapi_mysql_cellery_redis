@@ -10,9 +10,12 @@ from app.crud.base import CRUDBase
 from app.models.user import User
 from app.models.writer import Writer
 from app.models.novel import Novel, NovelMeta
-from app.models.series import Series, SeriesMeta, SeriesStatus, STATUS
+from app.models.series import Series, SeriesMeta, SeriesStatus, SeriesStatistic, STATUS
 from app.models.paragraph import Paragraph
-from app.schemas.series import SeriesCreate, SeriesUpdate, SeriesMetaCreate, SeriesMetaUpdate, SeriesStatusCreate, SeriesStatusUpdate
+from app.schemas.series import (SeriesCreate, SeriesUpdate,
+                                SeriesMetaCreate, SeriesMetaUpdate,
+                                SeriesStatusCreate, SeriesStatusUpdate,
+                                SeriesStatisticCreate, SeriesStatisticUpdate)
 from app.schemas.page_response import paginated_query
 
 
@@ -111,6 +114,11 @@ class CRUDSeriesStatus(CRUDBase[SeriesStatus, SeriesStatusCreate, SeriesStatusUp
             options(joinedload(self.model.series).joinedload(Series.writer).joinedload(Writer.user)).filter(self.model.id == id).first()
 
 
+class CRUDSeriesStatistic(CRUDBase[SeriesStatistic, SeriesStatisticCreate, SeriesStatisticUpdate]):
+    pass
+
+
 series = CRUDSeries(Series)
 series_meta = CRUDSeriesMeta(SeriesMeta)
 series_status = CRUDSeriesStatus(SeriesStatus)
+series_statistic = CRUDSeriesStatistic(SeriesStatistic)

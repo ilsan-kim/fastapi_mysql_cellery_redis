@@ -79,4 +79,13 @@ def create_series(
         "reason": None
     })
 
+    # series_statistic 테이블 자동 생성
+    crud.series_statistic.create(db, obj_in={
+        "series_id": series.id,
+        "view_count": 0,
+        "rating_count": 0,
+        "payment_count": 0,
+        "language_code": novel_lang
+    })
+
     return series

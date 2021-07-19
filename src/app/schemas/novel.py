@@ -1,4 +1,5 @@
 from typing import Optional, List
+from datetime import datetime
 
 from pydantic import BaseModel
 
@@ -36,11 +37,11 @@ basic novel metadata schema class
 class NovelMetaBase(BaseModel):
     title: str = ""
     language_code: str = 'kr'
-
+    description: Optional[str] = ""
 
 # Properties to Create via API
 class NovelMetaCreate(NovelMetaBase):
-    description: str = ""
+    pass
 
 
 # Properties to Update via API
@@ -93,19 +94,19 @@ class NovelBase(BaseModel):
     writer_nickname: str
     thumbnail_url: str = ""
     genre_code: str = "FANTASY"
-    region_code: str = "KR"
-    language_code: str = "kr"
-    is_scheduled: Optional[bool] = False
-    is_exclusive: Optional[bool] = False
     is_censored: Optional[bool] = False
     is_free: Optional[bool] = True
-    is_event: Optional[bool] = False
 
 
 # Properties to Create via API
 class NovelCreate(NovelBase):
+    is_scheduled: Optional[bool] = False
+    is_exclusive: Optional[bool] = False
+    is_event: Optional[bool] = False
     open_day_list: Optional[List[int]]
     tag_list: Optional[List[str]]
+    region_code: str = "KR"
+    language_code: str = "kr"
     title: str
     description: str
 
@@ -114,18 +115,17 @@ class NovelCreate(NovelBase):
 class NovelUpdate(NovelBase):
     open_day_list: Optional[List[int]]
     tag_list: Optional[List[str]]
-    title: str
-    description: str
-
     score: Optional[int] = None
     is_ficpick: Optional[bool] = False
     is_advertised: Optional[bool] = False
     is_deleted: Optional[bool] = False
     referral_url: Optional[str] = None
     status: Optional[str] = "ON_PROGRESS"
+    title: str
+    description: str
 
 
-# Properties of API Response /
+# Properties of API Response / 작품 등록
 class Novel(NovelBase):
     id: int
     is_fickpick: Optional[bool]
@@ -140,6 +140,21 @@ class Novel(NovelBase):
     series: Optional[List]
     novel_meta: Optional[List[NovelMeta]]
     novel_day: Optional[List[NovelDay]]
+
+    class Config:
+        orm_mode = True
+
+
+# 오픈베타 > 홈 > 작품리스트 > 개별 작품 구성 요소 // FOR API RESPONSE
+class NovelListRow(NovelBase):
+    id: int
+    is_ficpick: bool
+    view_count: int = 0
+    like_count: int = 0
+    rating: float = 0
+    title: str
+    description: str
+    updated_at: datetime
 
     class Config:
         orm_mode = True

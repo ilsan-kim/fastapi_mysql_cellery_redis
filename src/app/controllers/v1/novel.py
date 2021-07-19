@@ -1,20 +1,24 @@
 from typing import Any, Optional, List
+from operator import itemgetter
+import random
 
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 
 from app import crud
-from app.schemas import novel
+from app.schemas.novel import NovelCreate, Novel, NovelListRow
 from app.controllers import deps
+from app.utils.api.novel import get_sum_of_count, get_avg_rating
 
 router = APIRouter()
 
 
-@router.post("/", response_model=novel.Novel)
+@router.post("/", response_model=Novel)
 def create_novel(
         *,
         db: Session = Depends(deps.get_db),
-        novel_in: novel.NovelCreate
+        novel_in: NovelCreate
 ) -> Any:
     """
     Create new novel.
@@ -41,7 +45,7 @@ def create_novel(
 
     # 작품 모델 기본 파라미터
     novel_params = {
-        'writer_id' : novel_in.writer_id,
+        'writer_id': novel_in.writer_id,
         'writer_nickname': novel_in.writer_nickname,
         'thumbnail_url': novel_in.thumbnail_url,
         'genre_code': novel_in.genre_code,
@@ -75,3 +79,47 @@ def create_novel(
     crud.novel_meta.create(db, obj_in=novel_meta_params)
 
     return novel
+
+
+# home.py 따로 파서 옮기기
+@router.get("/list", response_model=List[NovelListRow])
+def get_list_for_home(
+        *,
+        db: Session = Depends(deps.get_db),
+        sort: Optional[str] = "updated_at"
+) -> List[NovelListRow]:
+    """
+    기본 내용외에 추후 확장성을 고려하여, __"writer_id" 와 "is_censored" 파라미터를 함께 리턴합니다.__\n
+    """
+    novel_list_raw = crud.novel.get_all(db=db)
+    novel_list = [
+        jsonable_encoder(NovelListRow(
+            id=novel.id,
+            writer_id=novel.writer_id,
+            writer_nickname=novel.writer_nickname,
+            thumbnail_url=novel.thumbnail_url,
+            genre_code=novel.genre_code,
+            is_censored=novel.is_censored,
+            is_free=novel.is_free,
+            title=novel.novel_meta[0].title,
+            description=novel.novel_meta[0].description,
+            is_ficpick=novel.is_ficpick,
+            view_count=get_sum_of_count([series for series in novel.series], "view_count"),
+            like_count=get_sum_of_count([series for series in novel.series], "like_count"),
+            rating=get_avg_rating([series for series in novel.series]),
+            updated_at=[series for series in novel.series][0].created_at
+        ))
+        for novel in novel_list_raw]
+    if sort == "random":
+        random.shuffle(novel_list)
+        sorted_data = novel_list
+    elif sort == "view_count":
+        sorted_data = sorted(novel_list, key=itemgetter("view_count"), reverse=True)
+    else:
+        sorted_data = sorted(novel_list, key=itemgetter("updated_at"), reverse=True)
+    return sorted_data
+
+
+@router.get("/banner")
+def get_banner(db: Session = Depends(deps.get_db)):
+    pass

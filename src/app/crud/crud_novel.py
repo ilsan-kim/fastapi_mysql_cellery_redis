@@ -1,9 +1,9 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime
 
 from sqlalchemy.orm import Session, joinedload
-from sqlalchemy import or_, and_
+from sqlalchemy import or_
 
 from app.crud.base import CRUDBase
 from app.models.paragraph import Paragraph
@@ -15,6 +15,7 @@ from app.schemas.novel import (NovelCreate, NovelUpdate,
                                NovelDayUpdate,
                                NovelMetaCreate, NovelMetaUpdate,
                                NovelTagUpdate)
+from app.schemas import novel
 from app.schemas.page_response import paginated_query
 
 
@@ -125,6 +126,16 @@ class CRUDNovel(CRUDBase[Novel, NovelCreate, NovelUpdate]):
             query,
             lambda x: x.order_by(Novel.id.desc()).limit(size).offset((page - 1) * size).all()
         )
+
+    def get_all(self, db: Session) -> List[novel.Novel]:
+        return db.query(self.model).\
+            join(self.model.novel_meta).\
+            options(joinedload(self.model.novel_meta)).\
+            join(self.model.series).join(Series.series_statistic).\
+            options(joinedload(self.model.series).joinedload(Series.series_statistic)).\
+            filter(NovelMeta.is_origin == True).\
+            group_by(self.model.id).\
+            all()
 
 
 class CRUDNovelMeta(CRUDBase[NovelMeta, NovelMetaCreate, NovelMetaUpdate]):
