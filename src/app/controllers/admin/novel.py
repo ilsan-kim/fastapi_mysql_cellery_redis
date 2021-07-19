@@ -1,19 +1,15 @@
 """
 For Admin API : 검수
 """
-from datetime import datetime, timedelta
-from typing import Any, Optional, List
+from typing import Any, Optional
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 
-from app.utils.api.admin import manager_name_extract, warning_level_changer
 from app import crud
-from app.schemas.admin import novel
+from app.schemas.admin.novel import NovelTableRow, NovelTable, NovelMetaData, SeriesDataInNovelMeta, NovelStatusEdit
 from app.schemas.page_response import PageResponse
-from app.schemas.series import SeriesUpdate, SeriesMetaUpdate, SeriesStatusUpdate
-from app.models.series import Series, SeriesMeta, SeriesStatus
 from app.controllers import deps
 from app.utils.api.admin import check_updated_date
 
@@ -29,10 +25,11 @@ def get_novel_table(
         created_from: Optional[str] = None, created_to: Optional[str] = None,
         updated_from: Optional[str] = None, updated_to: Optional[str] = None,
         is_ficpick: Optional[bool] = None, is_free: Optional[bool] = None, is_exclusive: Optional[bool] = None,
-        is_advertised: Optional[bool] = None, is_impressing: Optional[bool] = True,
+        is_advertised: Optional[bool] = None, is_impressing: bool = True,
         language_code: Optional[str] = None, genre_code: Optional[str] = None, status: str = None
 ) -> Any:
     """
+    어드민 > 작품관리 > 작품 리스트를 리턴합니다.
     :param q: 검색어 (string)\n
     :param min_score: 최소 스코어 (int)\n
     :param max_score: 최대 스코어 (int)\n
@@ -44,7 +41,7 @@ def get_novel_table(
     :param is_free: 유무료 (None: 전체 / True: 무료 / False: 유료)\n
     :param is_exclusive: 독점작 여부 (None: 전체 / True: 독점작 / False: 비독점작)\n
     :param is_advertised: 광고동의 여부 (None 전체 / True: Y / False: N)\n
-    :param is_impressing: 노출 상태 셀렉 (True: 전체 / False: 비노출)\n
+    :param is_impressing: 노출 상태 셀렉 (True: 전체 / False: 비노출)__!!기획서상 얘만 T/F 입니다. 기본값은 True!!__\n
     :param language_code: 언어코드 (string)\n
     :param genre_code: 장르코드 (string)\n
     :param status: 상태 > 각각  COMPLETED, ON_PROGRESS, PAUSED 로 체크 상황에 따라 콤마 붙여서 string으로 주면 됨 (ex. 완결/연재중 체크일경우  status="COMPLETED,ON_PROFRESS" 이렇게)\n
@@ -59,28 +56,29 @@ def get_novel_table(
     page_meta = raw_query.get("page_meta")
     raw_data = raw_query.get("content")
 
-    detail_data_list = [{
-        "id": data.get("id"),
-        "is_impressing": data.get("is_impressing"),
-        "title": list(filter(lambda x: x.get("is_origin") is True,
+    detail_data_list = [
+        NovelTableRow(
+            id=data.get("id"),
+            is_impressing=data.get("is_impressing"),
+            title=list(filter(lambda x: x.get("is_origin") is True,
                              [novel_meta for novel_meta in
                               data.get("novel_meta")]))[0].get("title"),
-        "writer_nickname": data.get("writer_nickname"),
-        "series_length": len(data.get("series")),
-        "view_count": 0,            # 추후 수정
-        "rating": 0,                # 추후 수정
-        "status": data.get("status"),
-        "is_ficpick": data.get("is_ficpick"),
-        "buy_count": 0,
-        "is_exclusive": data.get("is_exclusive"),
-        "is_advertised": data.get("is_advertised"),
-        "created_at": data.get("created_at"),
-        "updated_at": check_updated_date(data.get("series")),      # 해당 작품의 최근 회차 업로드일
-        "translation_suggestion": False,
-        "score": data.get("score")
-    } for data in raw_data]
+            writer_nickname=data.get("writer_nickname"),
+            series_length=len(data.get("series")),
+            view_count=0,
+            rating=0,
+            status=data.get("status"),
+            is_ficpic=data.get("is_ficpick"),
+            buy_count=0,
+            is_exclusive=data.get("is_exclusive"),
+            is_advertised=data.get("is_advertised"),
+            created_at=data.get("created_at"),
+            updated_at=check_updated_date(data.get("series")),
+            translation_suggestion=False,
+            score=data.get("score")
+        ) for data in raw_data]
 
-    return {"page_meta": page_meta, "contents": detail_data_list}
+    return NovelTable(page_meta=page_meta, contents=detail_data_list)
 
 
 @router.post("/{novel_id}/metadata")
@@ -88,8 +86,13 @@ def update_novel_meta(
         *,
         db: Session = Depends(deps.get_db),
         novel_id: int,
-        novel_meta_in: novel.NovelStatusEdit
+        novel_meta_in: NovelStatusEdit
 ) -> Any:
+    """
+    어드민 > 작품관리 > 작품 기본 정보 (스코어/노출현황)을 수정합니다.
+    :param novel_id:
+    :param novel_meta_in:
+    """
     novel_data = crud.novel.get_with_join(db=db, id=novel_id)
     return crud.novel.update(
         db=db,
@@ -104,6 +107,9 @@ def get_series_from_novel(
         db: Session = Depends(deps.get_db),
         novel_id: int
 ) -> Any:
+    """
+    어드민 > 작품관리 > 작품 리스트의 각 회차 > 해당 작품 상세 정보 및 해당 작품의 회차 리스트
+    """
     novel = jsonable_encoder(crud.novel.get_with_join(db=db, id=novel_id))
     user = novel.get("writer").get("user")
     series_list = novel.get("series")
@@ -115,40 +121,41 @@ def get_series_from_novel(
         else:
             return None
 
-    novel_meta = {
-        "title": list(filter(lambda x: x.get("is_origin") is True,
+    novel_meta = NovelMetaData(
+        title=list(filter(lambda x: x.get("is_origin") is True,
                              [novel_meta for novel_meta in novel.get("novel_meta")]))[0].get("title"),
-        "nickname": user.get("nickname"),
-        "writer_nickname": novel.get("writer_nickname"),
-        "created_at": novel.get("created_at"),
-        "status": novel.get("status"),
-        "is_exclusive": novel.get("is_exclusive"),
-        "is_advertised": novel.get("is_advertised"),
-        "updated_at": check_updated_date(series_list),
-        "buy_count": 0, #
-        "coupon_count": 0, #
-        "sponsor_count": 0, #
-        "is_ficpick": novel.get("is_ficpick"),
-        "series_length": len(series_list),
-        "like_count": 0, #
-        "rating": 0, #
-        "novel_day": check_novel_day(novel_day),
-        "language_code": novel.get("language_code"),
-        "region_code": novel.get("region_code"),
-        "genre_code": novel.get("genre_code")
-    }
-    series_data_list = [{
-        "id": series.get("id"),
-        "order_number": series.get("order_number"),
-        "is_impressing": series.get("is_impressing"),
-        "title": list(filter(lambda x: x.get("is_origin") is True,
-                             [series_meta for series_meta in series.get("series_meta")]))[0].get("title"),
-        "created_at": series.get("created_at"),
-        "updated_at": series.get("updated_at"),
-        "rating": 0,        # 추후 수정
-        "comment": 0,       # 추후 수정
-        "view_count": 0,    # 추후 수정
-        "buy_count": 0      # 추후 수정
-    } for series in series_list]
+        nickname=user.get("nickname"),
+        writer_nickname=novel.get("writer_nickname"),
+        created_at=novel.get("created_at"),
+        status=novel.get("status"),
+        is_exclusive=novel.get("is_exclusive"),
+        is_advertised=novel.get("is_advertised"),
+        updated_at=check_updated_date(series_list),
+        buy_count=0,
+        coupon_count=0,
+        sponsor_count=0,
+        is_ficpick=novel.get("is_ficpick"),
+        series_length=len(series_list),
+        like_count=0,
+        rating=0,
+        novel_day=check_novel_day(novel_day),
+        language_code=novel.get("language_code"),
+        region_code=novel.get("region_code"),
+        genre_code=novel.get("genre_code")
+    )
+
+    series_data_list = [SeriesDataInNovelMeta(
+        id=series.get("id"),
+        order_number=series.get("order_number"),
+        is_impressing=series.get("is_impressing"),
+        title=list(filter(lambda x: x.get("is_origin") is True,
+                          [series_meta for series_meta in series.get("series_meta")]))[0].get("title"),
+        created_at=series.get("created_at"),
+        updated_at=series.get("updated_at"),
+        rating=0,
+        comment=0,
+        view_count=0,
+        buy_count=0
+    ) for series in series_list]
 
     return {"novel_meta": novel_meta, "series_data_list": series_data_list}

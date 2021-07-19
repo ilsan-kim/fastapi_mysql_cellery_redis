@@ -3,13 +3,14 @@ from typing import Optional, List, Dict
 
 from pydantic import BaseModel
 
+from app.schemas.page_response import PageResponse
 
 '''
 basic series status statistic schema class for API response
 '''
 
 
-# Shared properties
+# 어드민 > 모니터링 현황 > 월별 누적 데이터
 class MonthlyData(BaseModel):
     month: int
     registered: int
@@ -17,10 +18,32 @@ class MonthlyData(BaseModel):
     unprocessed: int
 
 
-# Properties of API Response
-class SeriesStatusStatistic(BaseModel):
+# 어드민 > 모니터링 현황 > 월별 누적 데이터 조합 // FOR API RESPONSE
+class MonthlyStatistic(BaseModel):
     total: int
     detail: List[MonthlyData]
+
+    class Config:
+        orm_mode = True
+
+
+# 어드민 > 모니터링 테이블에 들어갈 행
+class MonitoringTableRow(BaseModel):
+    id: int
+    series_id: int
+    status: str
+    title: str
+    episode: str
+    writer_nickname: str
+    region_code: str
+    created_at: datetime
+    processed_at: datetime
+    manager: Optional[str]
+
+
+# 어드민 > 모니터링 테이블 // FOR API RESPONSE
+class MonitoringTablePage(PageResponse):
+    contents: Optional[List[MonitoringTableRow]]
 
     class Config:
         orm_mode = True
@@ -39,14 +62,10 @@ class SeriesDataBase(BaseModel):
         orm_mode = True
 
 
-class SeriesStatusList(SeriesDataBase):
-    processed_at: datetime
-    manager: Optional[str]
-
-
+# 어드민 > 모니터링 > 회차 상세정보 // FOR API RESPONSE
 class SeriesDetail(SeriesDataBase):
     is_censored: bool
-    contents: List[str]
+    contents: Optional[List[str]]
 
 
 class SeriesStatusEdit(BaseModel):
@@ -54,3 +73,8 @@ class SeriesStatusEdit(BaseModel):
     is_warning: bool = False
     is_delete: bool = False
     reason: str = "NORMAL"
+
+
+class SeriesStatusList(SeriesDataBase):
+    processed_at: datetime
+    manager: Optional[str]

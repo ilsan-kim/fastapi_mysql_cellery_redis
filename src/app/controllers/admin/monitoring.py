@@ -10,22 +10,24 @@ from sqlalchemy.orm import Session
 
 from app.utils.api.admin import manager_name_extract, warning_level_changer
 from app import crud
-from app.schemas.admin import monitoring
-from app.schemas.page_response import PageResponse
-from app.schemas.series import SeriesUpdate, SeriesMetaUpdate, SeriesStatusUpdate
-from app.models.series import Series, SeriesMeta, SeriesStatus
+from app.schemas.admin.monitoring import (MonthlyData, MonthlyStatistic,
+                                          MonitoringTableRow, MonitoringTablePage,
+                                          SeriesDetail, SeriesStatusEdit)
 from app.controllers import deps
 
 router = APIRouter()
 
 
-@router.get("/statistic", response_model=monitoring.SeriesStatusStatistic)
+@router.get("/statistic", response_model=MonthlyStatistic)
 def get_monitoring_statistic(
         *,
         db: Session = Depends(deps.get_db)
 ) -> Any:
     """
-    Get Series for Monitoring. API Server adjust UCT to KST by itself
+    어드민 > 모니터링의 월별 누적 현황을 리턴합니다.\n
+    month: 1 > 이번달\n
+    month: 2 > 이전달\n
+    month: 3 > 전전달
     """
     series_list = crud.series_status.get_all(db=db)
 
@@ -82,75 +84,87 @@ def get_monitoring_statistic(
                series.updated_at + timedelta(hours=9) < prev_month_start and series.status == "UNAPPROVED",
                [series for series in series_list]))
 
-    this_month = {
-        "month": 1,
-        "registered": len(this_month_registered),
-        "processed": len(this_month_processed),
-        "unprocessed": len(this_month_unprocessed)
-    }
-    prev_month = {
-        "month": 2,
-        "registered": len(prev_month_registered),
-        "processed": len(prev_month_processed),
-        "unprocessed": len(prev_month_unprocessed)
-    }
-    preprev_month = {
-        "month": 3,
-        "registered": len(preprev_month_registered),
-        "processed": len(preprev_month_processed),
-        "unprocessed": len(preprev_month_unprocessed)
-    }
-    return {"total": total, "detail": [this_month, prev_month, preprev_month]}
+    this_month = MonthlyData(
+        month=1,
+        registered=len(this_month_registered),
+        processed=len(this_month_processed),
+        unprocessed=len(this_month_unprocessed)
+    )
+
+    prev_month = MonthlyData(
+        month=2,
+        registered=len(prev_month_registered),
+        processed=len(prev_month_processed),
+        unprocessed=len(prev_month_unprocessed)
+    )
+
+    preprev_month = MonthlyData(
+        month=3,
+        registered=len(preprev_month_registered),
+        processed=len(preprev_month_processed),
+        unprocessed=len(preprev_month_unprocessed)
+    )
+
+    return MonthlyStatistic(total=total, detail=[this_month, prev_month, preprev_month])
 
 
-@router.get("/table", response_model=PageResponse)
+@router.get("/table", response_model=MonitoringTablePage)
 def get_monitoring_table(
         q: Optional[str] = None,
         region_code: Optional[str] = None, created_from: Optional[str] = "2000-02-22T09:00", created_to: Optional[str] = "2999-02-22T09:00", status: Optional[str] = None,
         *, db: Session = Depends(deps.get_db), page_request: dict = Depends(deps.get_page_request),
         ) -> Any:
+    """
+    어드민 > 모니터링의 테이블에 들어갈 데이터를 리턴합니다. query_params가 없을경우 (ex. /table?region_code=q=) 전체를 리턴합니다.
+    """
     raw_data = jsonable_encoder(crud.series_status.get_list_paginated_for_admin(db=db, page_request=page_request, q=q, region_code=region_code, created_from=created_from, created_to=created_to, status=status))
     detail_data = raw_data.get("content")
     page_meta = raw_data.get("page_meta")
 
-    detail_data_list = [{
-        "id": data.get("id"),
-        "series_id": data.get("series").get("id"),
-        "status": data.get("status"),
-        "title": list(filter(lambda x: x.get("is_origin") is True,
+    detail_data_list = [MonitoringTableRow(
+        id=data.get("id"),
+        series_id=data.get("series").get("id"),
+        status=data.get("status"),
+        title=list(filter(lambda x: x.get("is_origin") is True,
                              [novel_meta for novel_meta in
                               data.get("series").get("novel").get("novel_meta")]))[0].get("title"),
-        "episode": f"{data.get('series').get('order_number')}: "
-                   f"{list(filter(lambda x: x.get('is_origin') is True, [series_meta for series_meta in data.get('series').get('series_meta')]))[0].get('title')}",
-        "writer_nickname": data.get("series").get("novel").get("writer_nickname"),
-        "region_code": data.get("series").get("novel").get("region_code"),
-        "created_at": data.get("created_at"),
-        "processed_at": data.get("updated_at"),
-        "manager": manager_name_extract(data.get("manager"))
-    } for data in detail_data]
-    return {"page_meta": page_meta, "contents": detail_data_list}
+        episode=f"{data.get('series').get('order_number')}: "
+                f"{list(filter(lambda x: x.get('is_origin') is True, [series_meta for series_meta in data.get('series').get('series_meta')]))[0].get('title')}",
+        writer_nickname=data.get("series").get("novel").get("writer_nickname"),
+        region_code=data.get("series").get("novel").get("region_code"),
+        created_at=data.get("created_at"),
+        processed_at=data.get("updated_at"),
+        manager=manager_name_extract(data.get("manager"))
+    ) for data in detail_data]
+
+    return MonitoringTablePage(page_meta=page_meta, contents=detail_data_list)
 
 
-@router.get("/{series_id}", response_model=monitoring.SeriesDetail)
+@router.get("/{series_status_id}", response_model=SeriesDetail)
 def get_series_detail(
         *,
         db: Session = Depends(deps.get_db),
-        series_id: int
+        series_status_id: int
 ) -> Any:
-    series_data_raw = jsonable_encoder(crud.series.get_detail(db=db, id=series_id))
-    series_data = {
-        "id": series_data_raw.get("id"),
-        "status": series_data_raw.get("status"),
-        "title": list(filter(lambda x: x.get("is_origin") is True,
-                             [novel_meta for novel_meta in series_data_raw.get("novel").get("novel_meta")]))[0].get("title"),
-        "episode": f"{series_data_raw.get('order_number')}: "
-                   f"{list(filter(lambda x: x.get('is_origin') is True, [series_meta for series_meta in series_data_raw.get('series_meta')]))[0].get('title')}",
-        "writer_nickname": series_data_raw.get("novel").get("writer_nickname"),
-        "region_code": series_data_raw.get("novel").get("region_code"),
-        "created_at": series_data_raw.get("created_at"),
-        "is_censored": series_data_raw.get("novel").get("is_censored"),
-        "contents": [paragraph.get("text") for paragraph in series_data_raw.get("paragraph")]
-    }
+    """
+    어드민 > 모니터링 > 테이블의 각 회차 > 해당 회차 상세정보 \n
+    path_parameter로 "series_status_id"를 받습니다. series_status_id 는 /admin/table [GET]을 통해 받는 회차 상태 정보의 __"series_id"가 아닌, "id" 값 입니다.__
+    """
+    series = crud.series_status.get(db=db, id=series_status_id)
+    series_data_raw = jsonable_encoder(crud.series.get_detail(db=db, id=series.series_id))
+    series_data = SeriesDetail(
+        id=series_data_raw.get("id"),
+        status=series_data_raw.get("status"),
+        title=list(filter(lambda x: x.get("is_origin") is True,
+                          [novel_meta for novel_meta in series_data_raw.get("novel").get("novel_meta")]))[0].get("title"),
+        episode=f"{series_data_raw.get('order_number')}: "
+                f"{list(filter(lambda x: x.get('is_origin') is True, [series_meta for series_meta in series_data_raw.get('series_meta')]))[0].get('title')}",
+        writer_nickname=series_data_raw.get("novel").get("writer_nickname"),
+        region_code=series_data_raw.get("novel").get("region_code"),
+        created_at=series_data_raw.get("created_at"),
+        is_censored=series_data_raw.get("novel").get("is_censored"),
+        contents=[paragraph.get("text") for paragraph in series_data_raw.get("paragraph")]
+    )
     return series_data
 
 
@@ -159,8 +173,12 @@ def edit_series_status(
         *,
         db: Session = Depends(deps.get_db),
         series_status_id: int,
-        series_status_in: monitoring.SeriesStatusEdit
+        series_status_in: SeriesStatusEdit
 ) -> Any:
+    """
+    :param series_status_id: series_status_id 는 /admin/table [GET]을 통해 받는 회차 상태 정보의 __"series_id"가 아닌, "id" 값 입니다.__\n
+    :param reason: https://docs.google.com/spreadsheets/d/1zYQQe16VIXbP-5dHwbIG7u-3uHJrO_qUpccOf3_g-9E/edit#gid=1243584415 "노출제한사유" 탭의 코드값을 인자로 받습니다.
+    """
     series_status_data = crud.series_status.get_detail(db=db, id=series_status_id)
     json_series_status_data = jsonable_encoder(series_status_data)
 
@@ -207,6 +225,10 @@ def check_series_status(
         db: Session = Depends(deps.get_db),
         series_status_id: int
 ) -> Any:
+    """
+    path_parameter로 "series_status_id"를 받습니다. series_status_id 는 /admin/table [GET]을 통해 받는 회차 상태 정보의 __"series_id"가 아닌, "id" 값 입니다.__\n
+    해당 "시리즈 상태"를 확인했다는 뜻으로, 어드민 > 모니터링 > 회차 상세정보에서 "승인"버튼 클릭과 이어지는 API
+    """
 
     series_status_data = crud.series_status.get_detail(db=db, id=series_status_id)
     series_data = crud.series.get(db=db, id=series_status_data.series_id)

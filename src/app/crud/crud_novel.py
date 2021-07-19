@@ -35,7 +35,7 @@ class CRUDNovel(CRUDBase[Novel, NovelCreate, NovelUpdate]):
     def get_list_paginated_for_admin(self, db: Session, *, page_request: dict, q: Optional[str] = None, min_score: Optional[int] = 0, max_score: Optional[int] = 100,
                                      created_from: Optional[str] = None, created_to: Optional[str] = None, updated_from: Optional[str] = None, updated_to: Optional[str] = None,
                                      is_ficpick: Optional[bool] = None, is_free: Optional[bool] = None, is_exclusive: Optional[bool] = None, is_advertised: Optional[bool] = None,
-                                     is_impressing: Optional[bool] = True, language_code: Optional[str] = None, genre_code: Optional[str] = None, status: str = None):
+                                     is_impressing: bool = True, language_code: Optional[str] = None, genre_code: Optional[str] = None, status: str = None):
 
         """
         통계데이터/번역 여부 데이터 가져오는 쿼리 보강해야함
@@ -84,10 +84,8 @@ class CRUDNovel(CRUDBase[Novel, NovelCreate, NovelUpdate]):
         else:
             advertised_filter = self.model.is_advertised == False
 
-        if is_impressing is None:
+        if is_impressing is True:
             impressing_filter = self.model.id
-        elif is_impressing is True:
-            impressing_filter = self.model.is_impressing == True
         else:
             impressing_filter = self.model.is_impressing == False
 
