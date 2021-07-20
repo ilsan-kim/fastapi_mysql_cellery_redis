@@ -63,3 +63,7 @@ def get_current_active_superuser(
 
 def get_page_request(page: int = 1, size: int = 20):
     return {"page": page, "size": size}
+
+
+def get_page_request_for_series(page: int = 1):
+    return {"page": page, "size": 10}

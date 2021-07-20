@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 
 from app import crud
 from app.schemas.novel import NovelCreate, Novel, NovelListRow, NovelDetail
+from app.schemas.series import SeriesInNovelDetail, SeriesInNovelDetailPage
 from app.controllers import deps
 from app.utils.api.novel import get_sum_of_count, get_avg_rating
 
@@ -119,7 +120,7 @@ def get_list_for_home(
     return sorted_data
 
 
-@router.get("/{novel_id}")
+@router.get("/{novel_id}", response_model=NovelDetail)
 def get_detail(
     *,
     db: Session = Depends(deps.get_db),
@@ -148,3 +149,25 @@ def get_detail(
         auto_payment=False
     )
     return novel_detail
+
+
+@router.get("/{novel_id}/series", response_model=SeriesInNovelDetailPage)
+def get_series_list(*,
+                    page_request: dict = Depends(deps.get_page_request_for_series),
+                    db: Session = Depends(deps.get_db),
+                    novel_id: int,
+                    order: Optional[str] = "latest"):
+    raw_query = crud.series.get_list_paginated(db=db, page_request=page_request, id=novel_id, order=order)
+
+    page_meta = raw_query.get("page_meta")
+    raw_data = raw_query.get("content")
+
+    series = [SeriesInNovelDetail(
+        id=series.id,
+        title=list(filter(lambda x: x.is_origin is True, [x for x in series.series_meta]))[0].title,
+        order_number=series.order_number,
+        created_at=series.created_at,
+        rating=series.series_statistic.rating,
+        view_count=series.series_statistic.view_count
+    ) for series in raw_data]
+    return SeriesInNovelDetailPage(page_meta=page_meta, contents=series)

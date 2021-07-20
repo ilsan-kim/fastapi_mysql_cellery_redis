@@ -1,7 +1,9 @@
 from typing import Optional, List, Dict
+from datetime import datetime
 
 from pydantic import BaseModel
 
+from app.schemas.page_response import PageResponse
 from .paragraph import Paragraph
 
 '''
@@ -130,6 +132,24 @@ class Series(SeriesBase):
     paragraph: List[Paragraph]
     series_meta: Optional[List[SeriesMeta]]
     series_statistic: Optional[List[SeriesStatistic]]
+
+    class Config:
+        orm_mode = True
+
+
+# 특정 작품의 회차 리스트
+class SeriesInNovelDetail(SeriesBase):
+    id: int
+    title: str
+    order_number: int
+    created_at: datetime
+    rating: float
+    view_count: int
+
+
+# 회차 리스트 with 페이징
+class SeriesInNovelDetailPage(PageResponse):
+    contents: Optional[List[SeriesInNovelDetail]]
 
     class Config:
         orm_mode = True

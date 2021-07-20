@@ -48,7 +48,7 @@ def create_series(
         'is_free': is_free
     }
 
-    # db 입력 영
+    # db 입력 영역
     series = crud.series.create(db, obj_in=series_params)
 
     # paragraph 입력
@@ -87,5 +87,10 @@ def create_series(
         "payment_count": 0,
         "language_code": novel_lang
     })
+
+    '''
+    추가할것 
+    is_complete == True 면 작품 상태 변경 
+    '''
 
     return series

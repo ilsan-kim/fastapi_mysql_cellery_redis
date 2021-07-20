@@ -41,6 +41,26 @@ class CRUDSeries(CRUDBase[Series, SeriesCreate, SeriesUpdate]):
         db.commit()
         return series_obj
 
+    def get_list_paginated(self, db: Session, page_request: dict, id: int, order: Optional[str] = "oldest") -> Series:
+        if order == "latest":
+            order_filter = self.model.order_number.desc()
+        else:
+            order_filter = self.model.order_number
+
+        query = db.query(self.model).\
+            outerjoin(Series.series_meta).\
+            options(joinedload(Series.series_meta)).\
+            filter(self.model.novel_id == id).group_by(self.model.id)
+
+        page = page_request.get("page", 1)
+        size = page_request.get("size", 20)
+
+        return paginated_query(
+            page_request,
+            query,
+            lambda x: x.order_by(order_filter).limit(size).offset((page - 1) * size).all()
+        )
+
 
 class CRUDSeriesMeta(CRUDBase[SeriesMeta, SeriesMetaCreate, SeriesMetaUpdate]):
     pass
