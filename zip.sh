@@ -1,0 +1,1 @@
+zip -r api.zip ./* -x 'api.zip' -x '*.pyc' -x 'venv/*'

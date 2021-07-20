@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, Integer, String, ForeignKey, DateTime
+from sqlalchemy import Boolean, Column, Integer, String, ForeignKey, DateTime, Float
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.mysql import ENUM
 
@@ -21,11 +21,13 @@ class Series(Base):
     is_impressing = Column(Boolean, default=True)
     is_completed = Column(Boolean, default=False)
 
+    # One to One relation
+    series_statistic = relationship('SeriesStatistic', uselist=False, cascade="all, delete-orphan")
+
     # One to Many relation
     paragraph = relationship('Paragraph', back_populates='series', uselist=True, join_depth=1, cascade="all, delete")
     series_status = relationship('SeriesStatus', back_populates='series', join_depth=1, uselist=True, cascade="all, delete")
     series_meta = relationship('SeriesMeta', back_populates='series', uselist=True, cascade="all, delete")
-    series_statistic = relationship('SeriesStatistic', uselist=True, cascade="all, delete-orphan")
 
     # Many to One relation
     novel = relationship('Novel', back_populates='series', join_depth=1)
@@ -58,7 +60,8 @@ class SeriesStatistic(Base):
     id = Column(Integer, primary_key=True, index=True)
     series_id = Column(Integer, ForeignKey('series.id'), index=True)
     view_count = Column(Integer)
-    rating_count = Column(Integer)
+    rating = Column(Float)
+    like_count = Column(Integer)
     payment_count = Column(Integer)
     language_code = Column(String(30), ForeignKey('language.code'), default='kr')
 

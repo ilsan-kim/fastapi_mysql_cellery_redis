@@ -5,6 +5,35 @@ from pydantic import BaseModel
 from .paragraph import Paragraph
 
 '''
+basic series statistic schema class
+'''
+
+
+# Shared properties
+class SeriesStatisticBase(BaseModel):
+    series_id: int
+    view_count: int = 0
+    like_count: int = 0
+    rating: float = 0
+    payment_count: int = 0
+    language_code: str = "kr"
+
+
+class SeriesStatisticCreate(SeriesStatisticBase):
+    pass
+
+
+class SeriesStatisticUpdate(SeriesStatisticBase):
+    pass
+
+
+class SeriesStatistic(SeriesStatisticBase):
+    class Config:
+        orm_mode = True
+
+
+
+'''
 basic series metadata schema class
 '''
 
@@ -100,6 +129,7 @@ class Series(SeriesBase):
     status: str
     paragraph: List[Paragraph]
     series_meta: Optional[List[SeriesMeta]]
+    series_statistic: Optional[List[SeriesStatistic]]
 
     class Config:
         orm_mode = True

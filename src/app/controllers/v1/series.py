@@ -25,7 +25,7 @@ def create_series(
     Create new series.
     """
     # series params
-    novel_data = crud.novel.get_with_series(db=db, id=novel_id)
+    novel_data = crud.novel.get(db=db, id=novel_id)
     writer_id = novel_data.writer_id
     novel_is_free = novel_data.is_free
     paid_from = novel_data.need_pay_from
@@ -77,6 +77,15 @@ def create_series(
         "manager_id": None,
         "status": STATUS[0],
         "reason": None
+    })
+
+    # series_statistic 테이블 자동 생성
+    crud.series_statistic.create(db, obj_in={
+        "series_id": series.id,
+        "view_count": 0,
+        "rating_count": 0,
+        "payment_count": 0,
+        "language_code": novel_lang
     })
 
     return series

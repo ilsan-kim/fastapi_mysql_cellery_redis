@@ -8,7 +8,7 @@ services:
     env_file:
       - ./src/app/env/dev.env
     ports:
-      - "5000:80"
+      - "80:80"
     depends_on:
       - redis_server
 
@@ -28,8 +28,9 @@ services:
     image: mher/flower
     env_file:
       - ./src/app/env/dev.env
-    command: ["flower", "--broker=${REDISSERVER}", "--port=5555"]
+    command: ["celery", "flower", "--broker=${REDISSERVER}", "--port=5555"]
     ports:
       - "5555:5555"
     depends_on:
       - redis_server
+      - worker
