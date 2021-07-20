@@ -28,6 +28,7 @@ class Novel(Base):
     referral_url = Column(String(300), default="")
     score = Column(Integer, default=0)
     is_impressing = Column(Boolean, default=True)
+    isbn_code = Column(String(30), default="")
 
     # One to Many relation
     novel_notice = relationship('NovelNotice', back_populates='novel', uselist=True, join_depth=1)
@@ -39,7 +40,7 @@ class Novel(Base):
     writer = relationship('Writer', back_populates='novel', uselist=False, join_depth=2)
 
     # Many to Many relation
-    user_like = relationship('UserLike', back_populates='novel', join_depth=1)
+    user_novel = relationship('UserNovel', back_populates='novel', join_depth=1)
     novel_tag = relationship('NovelTag', back_populates='novel', join_depth=1)
     recommend = relationship('Recommend', back_populates='novel', join_depth=1)
 

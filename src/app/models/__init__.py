@@ -22,7 +22,7 @@ from .temp_save import TempSave
 from .thumbnail import Thumbnail
 from .user import User, SnsAccount, BankingInfo
 from .user_genre import UserGenre
-from .user_like import UserLike
+from .user_novel import UserNovel
 from .user_other_novel import UserOtherNovel
 from .user_paragraph import UserParagraph
 from .user_rating import UserRating

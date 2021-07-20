@@ -31,6 +31,10 @@ class CRUDNovel(CRUDBase[Novel, NovelCreate, NovelUpdate]):
             options(joinedload(self.model.writer).joinedload(Writer.user)).\
             outerjoin(self.model.novel_day).\
             options(joinedload(self.model.novel_day)).\
+            outerjoin(self.model.novel_tag).\
+            options(joinedload(self.model.novel_tag)).\
+            outerjoin(self.model.novel_day).\
+            options(joinedload(self.model.novel_day)).\
             filter(self.model.id == id).first()
 
     def get_list_paginated_for_admin(self, db: Session, *, page_request: dict, q: Optional[str] = None, min_score: Optional[int] = 0, max_score: Optional[int] = 100,

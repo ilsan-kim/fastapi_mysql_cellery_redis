@@ -13,7 +13,7 @@ from app.controllers.v1.novel import router
 novel_router = router
 
 
-@router.post("/{novel_id}/", response_model=series.Series)
+@router.post("/{novel_id}/series", response_model=series.Series)
 def create_series(
         *,
         novel_id: int,

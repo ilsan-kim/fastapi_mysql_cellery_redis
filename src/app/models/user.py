@@ -46,7 +46,7 @@ class User(Base):
     thumbnail = relationship('Thumbnail')
 
     # Many to Many relation table
-    user_like = relationship('UserLike', back_populates='user', join_depth=1)
+    user_novel = relationship('UserNovel', back_populates='user', join_depth=1)
     user_read = relationship('UserRead', back_populates='user', join_depth=1)
     user_rating = relationship('UserRating', back_populates='user', join_depth=1)
     user_paragraph = relationship('UserParagraph', back_populates='user', join_depth=2)

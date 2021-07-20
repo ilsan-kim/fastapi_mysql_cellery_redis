@@ -24,7 +24,7 @@ from app.models.temp_save import TempSave # noqa
 from app.models.thumbnail import Thumbnail # noqa
 from app.models.user import User, SnsAccount, BankingInfo # noqa
 from app.models.user_genre import UserGenre # noqa
-from app.models.user_like import UserLike # noqa
+from app.models.user_novel import UserLike # noqa
 from app.models.user_other_novel import UserOtherNovel # noqa
 from app.models.user_paragraph import UserParagraph # noqa
 from app.models.user_rating import UserRating # noqa

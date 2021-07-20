@@ -7,7 +7,7 @@ from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 
 from app import crud
-from app.schemas.novel import NovelCreate, Novel, NovelListRow
+from app.schemas.novel import NovelCreate, Novel, NovelListRow, NovelDetail
 from app.controllers import deps
 from app.utils.api.novel import get_sum_of_count, get_avg_rating
 
@@ -81,8 +81,7 @@ def create_novel(
     return novel
 
 
-# home.py 따로 파서 옮기기
-@router.get("/list", response_model=List[NovelListRow])
+@router.get("/home", response_model=List[NovelListRow])
 def get_list_for_home(
         *,
         db: Session = Depends(deps.get_db),
@@ -120,6 +119,32 @@ def get_list_for_home(
     return sorted_data
 
 
-@router.get("/banner")
-def get_banner(db: Session = Depends(deps.get_db)):
-    pass
+@router.get("/{novel_id}")
+def get_detail(
+    *,
+    db: Session = Depends(deps.get_db),
+    novel_id: int
+):
+    novel_data = crud.novel.get_with_join(db=db, id=novel_id)
+    novel_meta = novel_data.novel_meta
+    series = novel_data.series
+    novel_detail = NovelDetail(
+        id=novel_data.id,
+        writer_id=novel_data.writer_id,
+        writer_nickname=novel_data.writer_nickname,
+        title=list(filter(lambda x: x.is_origin is True, [x for x in novel_meta]))[0].title,
+        description=list(filter(lambda x: x.is_origin is True, [x for x in novel_meta]))[0].description,
+        thumbnail_url=novel_data.thumbnail_url,
+        genre_code=novel_data.genre_code,
+        is_free=novel_data.is_free,
+        is_censored=novel_data.is_censored,
+        is_ficpick=novel_data.is_ficpick,
+        is_exclusive=novel_data.is_exclusive,
+        view_count=get_sum_of_count(series, "view_count"),
+        rating=get_avg_rating(series),
+        status=novel_data.status,
+        open_day=sorted([novel_day.open_day for novel_day in novel_data.novel_day]),
+        tag_list=[novel_tag.tag_code for novel_tag in novel_data.novel_tag],
+        auto_payment=False
+    )
+    return novel_detail

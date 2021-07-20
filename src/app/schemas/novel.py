@@ -154,8 +154,16 @@ class NovelListRow(NovelBase):
     rating: float = 0
     title: str
     description: str
-    updated_at: datetime
+    updated_at: Optional[datetime]
 
     class Config:
         orm_mode = True
 
+
+# 작품 상세정보
+class NovelDetail(NovelListRow):
+    status: str
+    is_exclusive: bool
+    open_day: List[int]
+    tag_list: List[str]
+    auto_payment: bool = False
