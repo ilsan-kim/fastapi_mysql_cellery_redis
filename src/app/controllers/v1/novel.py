@@ -7,8 +7,9 @@ from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 
 from app import crud
+from app.models.series import STATUS
 from app.schemas.novel import NovelCreate, Novel, NovelListRow, NovelDetail
-from app.schemas.series import SeriesInNovelDetail, SeriesInNovelDetailPage
+from app.schemas.series import SeriesInNovelDetail, SeriesInNovelDetailPage, Series, SeriesCreate
 from app.controllers import deps
 from app.utils.api.novel import get_sum_of_count, get_avg_rating
 
@@ -149,6 +150,89 @@ def get_detail(
         auto_payment=False
     )
     return novel_detail
+
+
+@router.post("/{novel_id}/series", response_model=Series)
+def create_series(
+        *,
+        novel_id: int,
+        db: Session = Depends(deps.get_db),
+        series_in: SeriesCreate
+) -> Any:
+
+    """
+    Create new series.
+    """
+    # series params
+    novel_data = crud.novel.get(db=db, id=novel_id)
+    writer_id = novel_data.writer_id
+    novel_is_free = novel_data.is_free
+    paid_from = novel_data.need_pay_from
+    order_number = crud.series.get_order_number(db=db, novel_id=novel_id)
+    novel_lang = novel_data.language_code
+
+    if novel_is_free is True:
+        is_free = True
+    elif paid_from > order_number:
+        is_free = True
+    else:
+        is_free = False
+
+    series_params = {
+        'novel_id': novel_id,
+        'writer_id': writer_id,
+        'order_number': order_number,
+        'is_completed': series_in.is_completed,
+        'status': STATUS[0],
+        'is_free': is_free
+    }
+
+    # db 입력 영역
+    series = crud.series.create(db, obj_in=series_params)
+
+    # paragraph 입력
+    [crud.paragraph.create(db, obj_in={
+        "series_id": series.id,
+        "order_number": index,
+        "text": series_in.paragraph[index],
+        "language_code": novel_lang,
+        "is_origin": True,
+        "is_selected": True
+    })
+     for index in range(len(series_in.paragraph))]
+
+    # series_meta 입력
+    crud.series_meta.create(db, obj_in={
+        "series_id": series.id,
+        "is_origin": True,
+        "title": series_in.title,
+        "description": series_in.description,
+        "language_code": novel_lang
+    })
+
+    # series_status 입력
+    crud.series_status.create(db, obj_in={
+        "series_id": series.id,
+        "manager_id": None,
+        "status": STATUS[0],
+        "reason": None
+    })
+
+    # series_statistic 테이블 자동 생성
+    crud.series_statistic.create(db, obj_in={
+        "series_id": series.id,
+        "view_count": 0,
+        "rating_count": 0,
+        "payment_count": 0,
+        "language_code": novel_lang
+    })
+
+    '''
+    추가할것 
+    is_complete == True 면 작품 상태 변경 
+    '''
+
+    return series
 
 
 @router.get("/{novel_id}/series", response_model=SeriesInNovelDetailPage)

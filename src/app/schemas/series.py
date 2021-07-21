@@ -4,7 +4,7 @@ from datetime import datetime
 from pydantic import BaseModel
 
 from app.schemas.page_response import PageResponse
-from .paragraph import Paragraph
+from .paragraph import Paragraph, ParagraphInSeries
 
 '''
 basic series statistic schema class
@@ -135,6 +135,16 @@ class Series(SeriesBase):
 
     class Config:
         orm_mode = True
+
+
+# 리더기 > 작품 조회
+class SeriesRead(BaseModel):
+    id: int
+    title: str
+    description: str
+    created_at: datetime
+    paragraph_list: List[ParagraphInSeries]
+    rating: float
 
 
 # 특정 작품의 회차 리스트

@@ -26,7 +26,7 @@ class CRUDSeries(CRUDBase[Series, SeriesCreate, SeriesUpdate]):
             return series_list.order_number + 1
         return 1
 
-    def get_detail(self, db: Session, id: int):
+    def get_detail(self, db: Session, id: int) -> Series:
         series_data = db.query(self.model).\
             outerjoin(SeriesMeta).outerjoin(Paragraph).outerjoin(Novel).outerjoin(NovelMeta).\
             options(joinedload(self.model.series_meta)).\

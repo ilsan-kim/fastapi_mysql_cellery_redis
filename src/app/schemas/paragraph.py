@@ -10,27 +10,40 @@ basic series schema class
 
 # Shared properties
 class ParagraphBase(BaseModel):
-    series_id: int
-    order_number: int
     text: str
-    language_code: str
-    is_origin: bool = False
-    is_selected: bool = False
 
 
 # Properties to Create via API
 class ParagraphCreate(ParagraphBase):
-    pass
+    language_code: str
+    is_origin: bool = False
+    is_selected: bool = False
+    series_id: int
+    order_number: int
 
 
 # Properties to Update via API
 class ParagraphUpdate(ParagraphBase):
-    pass
+    language_code: str
+    is_origin: bool = False
+    is_selected: bool = False
+    series_id: int
+    order_number: int
 
 
 # Properties of API Response
 class Paragraph(ParagraphBase):
     id: int
+    language_code: str
+    is_origin: bool = False
+    is_selected: bool = False
+    series_id: int
+    order_number: int
 
     class Config:
         orm_mode = True
+
+
+# 리더기의 문단별 텍스트 영역
+class ParagraphInSeries(ParagraphBase):
+    id: int
