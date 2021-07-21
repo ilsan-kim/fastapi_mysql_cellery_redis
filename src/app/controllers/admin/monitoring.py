@@ -14,6 +14,7 @@ from app.schemas.admin.monitoring import (MonthlyData, MonthlyStatistic,
                                           MonitoringTableRow, MonitoringTablePage,
                                           SeriesDetail, SeriesStatusEdit)
 from app.controllers import deps
+from app.utils.api.novel import get_meta_from_meta_list
 
 router = APIRouter()
 
@@ -125,11 +126,10 @@ def get_monitoring_table(
         id=data.get("id"),
         series_id=data.get("series").get("id"),
         status=data.get("status"),
-        title=list(filter(lambda x: x.get("is_origin") is True,
-                             [novel_meta for novel_meta in
-                              data.get("series").get("novel").get("novel_meta")]))[0].get("title"),
-        episode=f"{data.get('series').get('order_number')}: "
-                f"{list(filter(lambda x: x.get('is_origin') is True, [series_meta for series_meta in data.get('series').get('series_meta')]))[0].get('title')}",
+        title=get_meta_from_meta_list(meta_list=data.get("series").get("novel").get("novel_meta"),
+                                      comparison="is_origin", criteria=True, value="title"),
+        series=f"{data.get('series').get('order_number')}: "
+               f"{get_meta_from_meta_list(meta_list=data.get('series').get('series_meta'), comparison='is_origin', criteria=True, value='title')}",
         writer_nickname=data.get("series").get("novel").get("writer_nickname"),
         region_code=data.get("series").get("novel").get("region_code"),
         created_at=data.get("created_at"),
@@ -155,10 +155,9 @@ def get_series_detail(
     series_data = SeriesDetail(
         id=series_data_raw.get("id"),
         status=series_data_raw.get("status"),
-        title=list(filter(lambda x: x.get("is_origin") is True,
-                          [novel_meta for novel_meta in series_data_raw.get("novel").get("novel_meta")]))[0].get("title"),
-        episode=f"{series_data_raw.get('order_number')}: "
-                f"{list(filter(lambda x: x.get('is_origin') is True, [series_meta for series_meta in series_data_raw.get('series_meta')]))[0].get('title')}",
+        title=get_meta_from_meta_list(meta_list=series_data_raw.get("novel").get("novel_meta"), comparison="is_origin", criteria=True, value="title"),
+        series=f"{series_data_raw.get('order_number')}: "
+               f"{get_meta_from_meta_list(meta_list=series_data_raw.get('series_meta'), comparison='is_origin', criteria=True, value='title')}",
         writer_nickname=series_data_raw.get("novel").get("writer_nickname"),
         region_code=series_data_raw.get("novel").get("region_code"),
         created_at=series_data_raw.get("created_at"),

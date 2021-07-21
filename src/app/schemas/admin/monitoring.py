@@ -33,7 +33,7 @@ class MonitoringTableRow(BaseModel):
     series_id: int
     status: str
     title: str
-    episode: str
+    series: str
     writer_nickname: str
     region_code: str
     created_at: datetime
@@ -53,7 +53,7 @@ class SeriesDataBase(BaseModel):
     id: int
     status: str
     title: str
-    episode: str
+    series: str
     writer_nickname: str
     region_code: str
     created_at: datetime

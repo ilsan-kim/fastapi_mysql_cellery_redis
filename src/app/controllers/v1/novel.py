@@ -11,7 +11,7 @@ from app.models.series import STATUS
 from app.schemas.novel import NovelCreate, Novel, NovelListRow, NovelDetail
 from app.schemas.series import SeriesInNovelDetail, SeriesInNovelDetailPage, Series, SeriesCreate
 from app.controllers import deps
-from app.utils.api.novel import get_sum_of_count, get_avg_rating
+from app.utils.api.novel import get_sum_of_count, get_avg_rating, get_meta_from_meta_list
 
 router = APIRouter()
 
@@ -125,7 +125,8 @@ def get_list_for_home(
 def get_detail(
     *,
     db: Session = Depends(deps.get_db),
-    novel_id: int
+    novel_id: int,
+    language_code: Optional[str] = "kr"
 ):
     novel_data = crud.novel.get_with_join(db=db, id=novel_id)
     novel_meta = novel_data.novel_meta
@@ -134,8 +135,8 @@ def get_detail(
         id=novel_data.id,
         writer_id=novel_data.writer_id,
         writer_nickname=novel_data.writer_nickname,
-        title=list(filter(lambda x: x.is_origin is True, [x for x in novel_meta]))[0].title,
-        description=list(filter(lambda x: x.is_origin is True, [x for x in novel_meta]))[0].description,
+        title=get_meta_from_meta_list(meta_list=novel_meta, comparison='language_code', criteria=language_code, value="title"),
+        description=get_meta_from_meta_list(meta_list=novel_meta, comparison='language_code', criteria=language_code, value="description"),
         thumbnail_url=novel_data.thumbnail_url,
         genre_code=novel_data.genre_code,
         is_free=novel_data.is_free,
@@ -240,7 +241,8 @@ def get_series_list(*,
                     page_request: dict = Depends(deps.get_page_request_for_series),
                     db: Session = Depends(deps.get_db),
                     novel_id: int,
-                    order: Optional[str] = "latest"):
+                    order: Optional[str] = "latest",
+                    language_code: Optional[str] = "kr"):
     raw_query = crud.series.get_list_paginated(db=db, page_request=page_request, id=novel_id, order=order)
 
     page_meta = raw_query.get("page_meta")
@@ -248,7 +250,7 @@ def get_series_list(*,
 
     series = [SeriesInNovelDetail(
         id=series.id,
-        title=list(filter(lambda x: x.is_origin is True, [x for x in series.series_meta]))[0].title,
+        title=get_meta_from_meta_list(meta_list=series.series_meta, comparison="language_code", criteria=language_code, value="title"),
         order_number=series.order_number,
         created_at=series.created_at,
         rating=series.series_statistic.rating,

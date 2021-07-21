@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from app import crud
 from app.schemas.series import SeriesRead
 from app.controllers import deps
-from app.utils.api.series import get_meta_from_meta_list
+from app.utils.api.novel import get_meta_from_meta_list
 
 router = APIRouter()
 

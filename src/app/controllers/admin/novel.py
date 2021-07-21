@@ -12,6 +12,7 @@ from app.schemas.admin.novel import NovelTableRow, NovelTable, NovelMetaData, Se
 from app.schemas.page_response import PageResponse
 from app.controllers import deps
 from app.utils.api.admin import check_updated_date
+from app.utils.api.novel import get_meta_from_meta_list
 
 router = APIRouter()
 
@@ -60,9 +61,7 @@ def get_novel_table(
         NovelTableRow(
             id=data.get("id"),
             is_impressing=data.get("is_impressing"),
-            title=list(filter(lambda x: x.get("is_origin") is True,
-                             [novel_meta for novel_meta in
-                              data.get("novel_meta")]))[0].get("title"),
+            title=get_meta_from_meta_list(meta_list=data.get("novel_meta"), comparison="is_origin", criteria=True, value="title"),
             writer_nickname=data.get("writer_nickname"),
             series_length=len(data.get("series")),
             view_count=0,
@@ -122,8 +121,7 @@ def get_series_from_novel(
             return None
 
     novel_meta = NovelMetaData(
-        title=list(filter(lambda x: x.get("is_origin") is True,
-                             [novel_meta for novel_meta in novel.get("novel_meta")]))[0].get("title"),
+        title=get_meta_from_meta_list(meta_list=novel.get("novel_meta"), comparison="is_origin", criteria=True, value="title"),
         nickname=user.get("nickname"),
         writer_nickname=novel.get("writer_nickname"),
         created_at=novel.get("created_at"),
@@ -148,8 +146,7 @@ def get_series_from_novel(
         id=series.get("id"),
         order_number=series.get("order_number"),
         is_impressing=series.get("is_impressing"),
-        title=list(filter(lambda x: x.get("is_origin") is True,
-                          [series_meta for series_meta in series.get("series_meta")]))[0].get("title"),
+        title=get_meta_from_meta_list(meta_list=series.get("series_meta"), comparison="is_origin", criteria=True, value="title"),
         created_at=series.get("created_at"),
         updated_at=series.get("updated_at"),
         rating=0,
