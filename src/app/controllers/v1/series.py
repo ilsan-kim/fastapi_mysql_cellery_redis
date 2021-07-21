@@ -19,7 +19,6 @@ def get_series_contents(
         language_code: str = "kr",
         db: Session = Depends(deps.get_db)) -> Any:
     """
-    Create new series.
     """
     series_raw = crud.series.get_detail(db=db, id=series_id)
     meta_list = series_raw.series_meta

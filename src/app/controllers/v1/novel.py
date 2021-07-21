@@ -5,7 +5,9 @@ import random
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
+from starlette.responses import RedirectResponse
 
+from .series import get_series_contents
 from app import crud
 from app.models.series import STATUS
 from app.schemas.novel import NovelCreate, Novel, NovelListRow, NovelDetail
@@ -257,3 +259,25 @@ def get_series_list(*,
         view_count=series.series_statistic.view_count
     ) for series in raw_data]
     return SeriesInNovelDetailPage(page_meta=page_meta, contents=series)
+
+
+@router.get("/{novel_id}/first")
+def get_first_series(*,
+                     db: Session = Depends(deps.get_db),
+                     novel_id: int,
+                     language_code: Optional[str] = "kr"):
+    series_list = jsonable_encoder(crud.novel.get_with_join(db=db, id=novel_id).series)
+    first_series_id = sorted(series_list, key=itemgetter("order_number"))[0].get("id")
+    response = get_series_contents(db=db, series_id=first_series_id, language_code=language_code)
+    return response
+
+
+@router.get("/{novel_id}/latest")
+def get_latest_series(*,
+                     db: Session = Depends(deps.get_db),
+                     novel_id: int,
+                     language_code: Optional[str] = "kr"):
+    series_list = jsonable_encoder(crud.novel.get_with_join(db=db, id=novel_id).series)
+    first_series_id = sorted(series_list, key=itemgetter("order_number"), reverse=True)[0].get("id")
+    response = get_series_contents(db=db, series_id=first_series_id, language_code=language_code)
+    return response
