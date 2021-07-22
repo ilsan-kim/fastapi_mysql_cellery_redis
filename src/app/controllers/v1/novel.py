@@ -240,7 +240,7 @@ def create_series(
 
 @router.get("/{novel_id}/series", response_model=SeriesInNovelDetailPage)
 def get_series_list(*,
-                    page_request: dict = Depends(deps.get_page_request_for_series),
+                    page_request: dict = Depends(deps.get_page_request_size_ten),
                     db: Session = Depends(deps.get_db),
                     novel_id: int,
                     order: Optional[str] = "latest",

@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from app import crud
 from app.schemas.series import SeriesRead
-from app.schemas.comment import CommentBase, CommentCreate, Comment, CommentDetail
+from app.schemas.comment import CommentBase, CommentCreate, Comment, CommentDetail, CommentPage
 from app.controllers import deps
 from app.utils.api.novel import get_meta_from_meta_list
 
@@ -52,11 +52,16 @@ def post_comment_to_series(*,
                                                            image_url=series_in.image_url))
 
 
-@router.get("/{series_id}/comment", response_model=List[CommentDetail])
+@router.get("/{series_id}/comment", response_model=CommentPage)
 def get_comments_in_series(*,
+                           page_request: dict = Depends(deps.get_page_request_size_ten),
                            db: Session = Depends(deps.get_db),
                            series_id: int):
-    comments_raw = crud.comment.get_list_with_user(db=db, series_id=series_id)
+    raw_query = crud.comment.get_list_with_user_paginated(db=db, page_request=page_request, series_id=series_id)
+
+    page_meta = raw_query.get("page_meta")
+    raw_data = raw_query.get("content")
+
     comments = [CommentDetail(
         id=comments.id,
         user_id=comments.user_id,
@@ -66,5 +71,6 @@ def get_comments_in_series(*,
         content=comments.content,
         image_url=comments.image_url,
         like_count=comments.like_count,
-        created_at=comments.created_at) for comments in comments_raw]
-    return comments
+        created_at=comments.created_at) for comments in raw_data]
+
+    return CommentPage(page_meta=page_meta, contents=comments)

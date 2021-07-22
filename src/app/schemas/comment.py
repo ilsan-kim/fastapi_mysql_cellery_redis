@@ -3,6 +3,7 @@ from datetime import datetime
 
 from pydantic import BaseModel
 
+from app.schemas.page_response import PageResponse
 
 '''
 basic novel tags schema class
@@ -45,6 +46,11 @@ class CommentDetail(CommentBase):
     profile_url: str
     like_count: int
     created_at: datetime
+
+
+# 회차 리스트 with 페이징
+class CommentPage(PageResponse):
+    contents: Optional[List[CommentDetail]]
 
     class Config:
         orm_mode = True
