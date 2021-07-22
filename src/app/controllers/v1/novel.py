@@ -281,3 +281,10 @@ def get_latest_series(*,
     first_series_id = sorted(series_list, key=itemgetter("order_number"), reverse=True)[0].get("id")
     response = get_series_contents(db=db, series_id=first_series_id, language_code=language_code)
     return response
+
+
+@router.post("/{novel_id}/notice")
+def post_novel_notice(*,
+                      db: Session = Depends(deps.get_db),
+                      novel_id: int):
+    return

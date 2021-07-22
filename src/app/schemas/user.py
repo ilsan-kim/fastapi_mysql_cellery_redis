@@ -10,7 +10,7 @@ class UserBase(BaseModel):
     phone_number: Optional[str] = '010-1111-1111'
     gender: Optional[str] = 'ETC'
     language_code: Optional[str] = 'kr'
-    profile_url: Optional[str] = ''
+    profile_url: Optional[str] = None
 
 
 # Properties to Create via API

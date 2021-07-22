@@ -32,7 +32,7 @@ class User(Base):
     is_authenticated = Column(Boolean, default=False)
     accept_notification = Column(Boolean, default=False)
     accept_mailing = Column(Boolean, default=False)
-    profile_url = Column(String(300), default="")
+    profile_url = Column(String(300))
     login_at = Column(DateTime, default=datetime.datetime.now)
 
     # One to One relation table
@@ -57,6 +57,7 @@ class User(Base):
     user_translate_like = relationship('UserTranslateLike', back_populates='user', join_depth=1)
     user_genre = relationship('UserGenre', back_populates='user', join_depth=1)
     user_tag = relationship('UserTag', back_populates='user', join_depth=1)
+    user_comment = relationship('UserComment', back_populates='user', join_depth=1)
 
 
 class SnsAccount(Base):

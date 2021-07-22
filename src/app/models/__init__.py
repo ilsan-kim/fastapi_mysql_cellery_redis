@@ -21,6 +21,7 @@ from .tag import Tag, TagDetail
 from .temp_save import TempSave
 from .thumbnail import Thumbnail
 from .user import User, SnsAccount, BankingInfo
+from .user_comment import UserComment
 from .user_genre import UserGenre
 from .user_novel import UserNovel
 from .user_other_novel import UserOtherNovel

@@ -6,7 +6,8 @@ from app.controllers.v1 import (
     user,
     writer,
     novel,
-    series
+    series,
+    comment
 )
 
 api_router_service = APIRouter()
@@ -14,6 +15,7 @@ api_router_service.include_router(user.router, prefix='/user', tags=['user'])
 api_router_service.include_router(writer.router, prefix='/writer', tags=['writer'])
 api_router_service.include_router(novel.router, prefix='/novel', tags=['novel'])
 api_router_service.include_router(series.router, prefix='/series', tags=['series'])
+api_router_service.include_router(comment.router, prefix='/comment', tags=['comment'])
 
 
 @api_router_service.get('/')
