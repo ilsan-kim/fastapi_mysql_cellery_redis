@@ -59,10 +59,12 @@ class SeriesStatus(Base):
 class SeriesStatistic(Base):
     id = Column(Integer, primary_key=True, index=True)
     series_id = Column(Integer, ForeignKey('series.id'), index=True)
-    view_count = Column(Integer)
-    rating = Column(Float)
-    like_count = Column(Integer)
-    payment_count = Column(Integer)
+    view_count = Column(Integer, default=0)
+    rating = Column(Float, default=0)
+    rating_count = Column(Integer, default=0)
+    total_rating = Column(Float, default=0)
+    like_count = Column(Integer, default=0)
+    payment_count = Column(Integer, default=0)
     language_code = Column(String(30), ForeignKey('language.code'), default='kr')
 
     # Many to One relation

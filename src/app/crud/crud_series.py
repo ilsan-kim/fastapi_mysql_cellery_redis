@@ -135,7 +135,8 @@ class CRUDSeriesStatus(CRUDBase[SeriesStatus, SeriesStatusCreate, SeriesStatusUp
 
 
 class CRUDSeriesStatistic(CRUDBase[SeriesStatistic, SeriesStatisticCreate, SeriesStatisticUpdate]):
-    pass
+    def get_by_series_id(self, db: Session, series_id: int):
+        return db.query(self.model).filter(self.model.series_id == series_id).first()
 
 
 series = CRUDSeries(Series)
