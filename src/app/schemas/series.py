@@ -131,7 +131,7 @@ class Series(SeriesBase):
     status: str
     paragraph: List[Paragraph]
     series_meta: Optional[List[SeriesMeta]]
-    series_statistic: Optional[List[SeriesStatistic]]
+    series_statistic: Optional[SeriesStatistic]
 
     class Config:
         orm_mode = True

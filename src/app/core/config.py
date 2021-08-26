@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     API_ADMIN_STR: str = "/admin"
     SECRET_KEY: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 365
-    SERVER_NAME: str =  "ficfic_api"
+    SERVER_NAME: str = "ficfic_api"
     SERVER_HOST: AnyHttpUrl = "http://localhost"
     PROJECT_NAME: str
     MYSQL_SERVER: str
@@ -26,5 +26,5 @@ class Settings(BaseSettings):
     BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = []
 
 
-_env_file=f'{os.getenv("app_env", "local")}.env'
+_env_file=f'{os.getenv("app_env", "./app/env/local")}.env'
 settings = Settings(_env_file=_env_file)
